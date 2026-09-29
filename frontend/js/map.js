@@ -5,37 +5,130 @@ class MonsoonMapManager {
     this.map = null;
     this.isochronesLayer = null;
     this.radarLayer = null;
+    this.polygonsLayer = null;
     this.markersLayer = null;
-    this.selectedMarker = null;
+    this.blockGeojsonData = null;
+    this.activeRiskLayerType = 'break_risk'; // 'break_risk' or 'onset_status'
   }
 
   init() {
     if (this.map) return;
 
-    // Centered on India
+    // Centered on central/southern India agricultural belt
     this.map = L.map(this.containerId, {
       zoomControl: true,
       minZoom: 4,
-      maxZoom: 12
-    }).setView([20.0, 78.9], 5);
+      maxZoom: 14
+    }).setView([18.5, 78.5], 6);
 
-    // CartoDB Dark Matter / Positron tiles for high-contrast presentation
+    // CartoDB Dark Matter tiles for clean high-contrast presentation
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://carto.com/">CARTO</a> | IMD MoES Open Data',
+      attribution: '&copy; <a href="https://carto.com/">CARTO</a> | NCMRWF-MoES Open Data',
       subdomains: 'abcd',
       maxZoom: 19
     }).addTo(this.map);
 
+    this.polygonsLayer = L.layerGroup().addTo(this.map);
     this.isochronesLayer = L.layerGroup().addTo(this.map);
     this.radarLayer = L.layerGroup().addTo(this.map);
     this.markersLayer = L.layerGroup().addTo(this.map);
 
-    // Click on map to request nearest block
+    this.addMapLegend();
+
+    // Map click handler
     this.map.on('click', (e) => {
       if (this.onLocationSelect) {
         this.onLocationSelect(null, e.latlng.lat, e.latlng.lng);
       }
     });
+  }
+
+  addMapLegend() {
+    const legend = L.control({ position: 'bottomright' });
+    legend.onAdd = () => {
+      const div = L.DomUtil.create('div', 'info legend');
+      div.style.background = 'rgba(10, 15, 29, 0.85)';
+      div.style.padding = '8px 12px';
+      div.style.borderRadius = '8px';
+      div.style.border = '1px solid rgba(59, 130, 246, 0.3)';
+      div.style.color = '#f8fafc';
+      div.style.fontSize = '11px';
+      div.style.lineHeight = '1.5';
+      div.innerHTML = `
+        <strong style="color:#38bdf8;">Block Dry-Spell Risk</strong><br/>
+        <span style="display:inline-block; width:10px; height:10px; background:#10b981; border-radius:2px; margin-right:4px;"></span> Low (&lt;30%)<br/>
+        <span style="display:inline-block; width:10px; height:10px; background:#f59e0b; border-radius:2px; margin-right:4px;"></span> Moderate (30-50%)<br/>
+        <span style="display:inline-block; width:10px; height:10px; background:#f97316; border-radius:2px; margin-right:4px;"></span> High (50-75%)<br/>
+        <span style="display:inline-block; width:10px; height:10px; background:#f43f5e; border-radius:2px; margin-right:4px;"></span> Critical (&gt;75%)
+      `;
+      return div;
+    };
+    legend.addTo(this.map);
+  }
+
+  renderBlockPolygons(geojson) {
+    if (!this.map || !geojson) return;
+    this.blockGeojsonData = geojson;
+    this.polygonsLayer.clearLayers();
+
+    L.geoJSON(geojson, {
+      style: (feature) => {
+        const risk = feature.properties.break_risk_level;
+        let color = '#10b981';
+        let fillColor = '#10b981';
+
+        if (risk === 'CRITICAL') {
+          color = '#f43f5e';
+          fillColor = '#f43f5e';
+        } else if (risk === 'HIGH') {
+          color = '#f97316';
+          fillColor = '#f97316';
+        } else if (risk === 'MODERATE') {
+          color = '#f59e0b';
+          fillColor = '#f59e0b';
+        } else {
+          color = '#10b981';
+          fillColor = '#10b981';
+        }
+
+        return {
+          color: color,
+          weight: 2,
+          fillColor: fillColor,
+          fillOpacity: 0.35,
+          dashArray: '3'
+        };
+      },
+      onEachFeature: (feature, layer) => {
+        const p = feature.properties;
+        layer.bindTooltip(
+          `<strong>${p.name}</strong><br/>Break Risk: <b>${p.break_risk_level} (${p.break_probability_pct}%)</b><br/>Onset: ${p.onset_status}`,
+          { direction: 'top', className: 'map-tooltip' }
+        );
+
+        layer.bindPopup(`
+          <div style="font-family:inherit; font-size:12px; color:#0f172a; min-width:180px;">
+            <strong style="font-size:13px; color:#1e293b;">${p.name}</strong><br/>
+            <span>${p.block_or_mandal}, ${p.district}</span><br/>
+            <hr style="margin:4px 0; border:0; border-top:1px solid #cbd5e1;"/>
+            <b>Monsoon Onset:</b> ${p.onset_status}<br/>
+            <b>Dry Spell Risk:</b> <span style="font-weight:700; color:${p.break_risk_level === 'CRITICAL' ? '#e11d48' : '#059669'};">${p.break_risk_level} (${p.break_probability_pct}%)</span><br/>
+            <b>Heavy Rain Risk:</b> ${p.heavy_rain_risk}<br/>
+            <b>Soil:</b> ${p.primary_soil}<br/>
+            <small style="color:#64748b;">Source: ${p.data_provenance}</small><br/>
+            <button onclick="window.app.selectLocation('${p.id}')" style="margin-top:6px; background:#2563eb; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; width:100%;">
+              Select This Block
+            </button>
+          </div>
+        `);
+
+        layer.on('click', () => {
+          if (this.onLocationSelect) {
+            this.onLocationSelect(p.id);
+          }
+        });
+      }
+    }).addTo(this.polygonsLayer);
   }
 
   renderIsochrones(geojson) {
@@ -146,26 +239,26 @@ class MonsoonMapManager {
   }
 
   focusLocation(lat, lon) {
-    if (this.map) {
+    if (this.map && lat && lon) {
       this.map.flyTo([lat, lon], 9, { duration: 1.2 });
     }
   }
 
   toggleIsochrones(visible) {
     if (!this.map) return;
-    if (visible) {
-      this.map.addLayer(this.isochronesLayer);
-    } else {
-      this.map.removeLayer(this.isochronesLayer);
-    }
+    if (visible) this.map.addLayer(this.isochronesLayer);
+    else this.map.removeLayer(this.isochronesLayer);
   }
 
   toggleRadar(visible) {
     if (!this.map) return;
-    if (visible) {
-      this.map.addLayer(this.radarLayer);
-    } else {
-      this.map.removeLayer(this.radarLayer);
-    }
+    if (visible) this.map.addLayer(this.radarLayer);
+    else this.map.removeLayer(this.radarLayer);
+  }
+
+  togglePolygons(visible) {
+    if (!this.map) return;
+    if (visible) this.map.addLayer(this.polygonsLayer);
+    else this.map.removeLayer(this.polygonsLayer);
   }
 }

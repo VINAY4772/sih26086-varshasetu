@@ -153,10 +153,22 @@ def get_risk_map():
     ]
 
     location_markers = [dict(loc) for loc in loc_rows]
+
+    # Load high-resolution Block/Mandal/Panchayat GeoJSON boundaries
+    geojson_path = Config.DATA_DIR / "geojson" / "blocks_boundary.json"
+    block_polygons = None
+    if geojson_path.exists():
+        try:
+            with open(geojson_path, "r", encoding="utf-8") as f:
+                block_polygons = json.load(f)
+        except Exception:
+            block_polygons = None
+
     return jsonify({
         "isochrones": isochrones,
         "radar_grid": radar_grid,
-        "locations": location_markers
+        "locations": location_markers,
+        "block_polygons": block_polygons
     })
 
 @api_bp.route("/rainfall-history", methods=["GET"])

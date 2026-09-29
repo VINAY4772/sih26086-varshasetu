@@ -57,3 +57,29 @@ def test_heavy_rainfall_risk_levels():
 
     res_extreme = detector.evaluate_heavy_rainfall_risk([5.0, 215.0, 10.0])
     assert res_extreme["heavy_rainfall_risk"] == "RED_ALERT_EXTREME"
+
+def test_climate_drivers_influence():
+    detector = MeteorologicalEventDetector()
+    # Test El Nino + Negative IOD + MJO Phase 7 (Dry spell enhancement)
+    res_dry = detector.evaluate_climate_drivers_influence(
+        enso_nino34=1.2,
+        iod_dmi=-0.5,
+        mjo_phase=7,
+        mjo_amplitude=1.5
+    )
+    assert res_dry["enso"]["phase"] == "El Niño"
+    assert res_dry["iod"]["phase"] == "Negative IOD"
+    assert "Suppressed" in res_dry["mjo"]["status"]
+    assert res_dry["net_break_risk_modifier"] > 0.0
+
+    # Test La Nina + Positive IOD + MJO Phase 3 (Monsoon active revival)
+    res_wet = detector.evaluate_climate_drivers_influence(
+        enso_nino34=-1.0,
+        iod_dmi=0.6,
+        mjo_phase=3,
+        mjo_amplitude=1.4
+    )
+    assert res_wet["enso"]["phase"] == "La Niña"
+    assert res_wet["iod"]["phase"] == "Positive IOD"
+    assert "Active" in res_wet["mjo"]["status"]
+    assert res_wet["net_break_risk_modifier"] < 0.0

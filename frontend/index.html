@@ -252,6 +252,78 @@
       </div>
     </section>
 
+    <!-- Climate Drivers & Large-Scale Teleconnections Card -->
+    <section class="glass-card" style="margin-top: 1rem;">
+      <div class="card-header">
+        <span class="card-title">🌐 Large-Scale Climate Drivers & Teleconnections (NCMRWF ERPS)</span>
+        <span class="badge" style="background:rgba(59,130,246,0.15); color:#60a5fa;">Global Tropics Telemetry</span>
+      </div>
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:1rem; margin-top:0.5rem;">
+        <div style="background:rgba(10,15,29,0.5); padding:0.9rem; border-radius:10px; border:1px solid rgba(255,255,255,0.05);">
+          <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; font-weight:700;">ENSO (Niño 3.4 Region)</div>
+          <div style="font-size:1.3rem; font-weight:800; color:#fff; margin-top:0.2rem;" id="tele-enso-val">+0.25 °C (Neutral)</div>
+          <small style="color:var(--text-muted); font-size:0.75rem;" id="tele-enso-desc">Pacific SST anomaly within neutral threshold</small>
+        </div>
+        <div style="background:rgba(10,15,29,0.5); padding:0.9rem; border-radius:10px; border:1px solid rgba(255,255,255,0.05);">
+          <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; font-weight:700;">Indian Ocean Dipole (BOM DMI)</div>
+          <div style="font-size:1.3rem; font-weight:800; color:#38bdf8; margin-top:0.2rem;" id="tele-iod-val">+0.15 °C (Neutral)</div>
+          <small style="color:var(--text-muted); font-size:0.75rem;" id="tele-iod-desc">Normal equatorial thermal gradient</small>
+        </div>
+        <div style="background:rgba(10,15,29,0.5); padding:0.9rem; border-radius:10px; border:1px solid rgba(255,255,255,0.05);">
+          <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; font-weight:700;">MJO Convective Wave (RMM)</div>
+          <div style="font-size:1.3rem; font-weight:800; color:#10b981; margin-top:0.2rem;" id="tele-mjo-val">Phase 3 (Amp: 1.2)</div>
+          <small style="color:var(--text-muted); font-size:0.75rem;" id="tele-mjo-desc">Convectively active over Indian Ocean</small>
+        </div>
+      </div>
+    </section>
+
+    <!-- Optional Messaging Gateway Sandbox (SMS / WhatsApp) -->
+    <section class="glass-card" style="margin-top: 1rem;">
+      <div class="card-header">
+        <span class="card-title">📱 Rural Messaging Gateway Sandbox (Farmer SMS & WhatsApp Dispatches)</span>
+        <span class="badge" style="background:rgba(16,185,129,0.15); color:#34d399;">Working Prototype Adapter</span>
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-top:0.5rem;">
+        <div>
+          <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem;">
+            Dispatches localized agro-meteorological bulletins directly to farmers' mobile devices in their chosen regional language.
+          </p>
+          <div style="display:flex; flex-direction:column; gap:0.65rem;">
+            <div style="display:flex; gap:0.5rem;">
+              <input type="text" id="notify-phone" class="control-select" style="flex:1;" placeholder="Farmer Phone: +91 98765 43210" value="+91 98765 43210"/>
+              <select id="notify-channel" class="control-select" style="width:120px;">
+                <option value="sms">SMS</option>
+                <option value="whatsapp">WhatsApp</option>
+              </select>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.75rem; color:var(--text-muted);">
+              <input type="checkbox" id="notify-consent" checked />
+              <label for="notify-consent">Farmer opted-in for seasonal Kharif agro-met alerts (ICAR-NCMRWF)</label>
+            </div>
+            <button id="dispatch-notify-btn" class="voice-btn" style="align-self:flex-start; margin-top:0.25rem;">
+              <span>📤</span> Dispatch Localized Alert
+            </button>
+          </div>
+        </div>
+
+        <!-- Simulation Delivery Log Box -->
+        <div id="notify-log-card" style="background:rgba(10,15,29,0.6); border:1px dashed rgba(59,130,246,0.3); border-radius:10px; padding:0.9rem; font-size:0.78rem; color:#cbd5e1; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+              <strong style="color:var(--accent-cyan);">Simulated Delivery Console</strong>
+              <span id="notify-status-pill" style="color:#10b981; font-weight:700;">STANDBY</span>
+            </div>
+            <div id="notify-message-preview" style="font-family:monospace; background:rgba(0,0,0,0.3); padding:0.5rem; border-radius:6px; font-size:0.75rem; color:#a7f3d0; max-height:80px; overflow-y:auto;">
+              Click 'Dispatch Localized Alert' to simulate carrier transmission...
+            </div>
+          </div>
+          <div style="font-size:0.68rem; color:var(--text-dim); margin-top:0.4rem;">
+            Notice: Sandbox demonstration mode. Dispatches are verified and logged into SQLite audit records without incurring external SMS carrier fees.
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Data Sources & Model Transparency Panel -->
     <section class="glass-card" style="margin-top: 1rem;">
       <div class="card-header">
@@ -261,7 +333,7 @@
         </button>
       </div>
       <div id="model-transparency-content" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
-        <p><strong>Model Engine:</strong> Hybrid Physics-Informed Random Forest Classifier calibrated with IMD operational thresholds (Pai et al. 2014) and tropical climate drivers (ENSO Niño 3.4, BOM IOD, CPC MJO).</p>
+        <p><strong>Department & Architecture:</strong> National Centre for Medium Range Weather Forecasting (NCMRWF) and IMD operational criteria. Hybrid Physics-Informed Random Forest Classifier coupled with tropical climate drivers (ENSO Niño 3.4, BOM IOD, CPC MJO).</p>
         <p><strong>Evaluation Status:</strong> Evaluated using chronological train/test partitioning (Train: 2023–2024, Test: 2025) to prevent temporal data leakage. Demonstrated positive Brier Skill Score (+0.158) over climatological baseline.</p>
         <div id="model-metrics-pills" style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:0.75rem;">
           <!-- Populated by JS -->

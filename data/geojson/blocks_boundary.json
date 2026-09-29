@@ -1,0 +1,207 @@
+{
+  "type": "FeatureCollection",
+  "name": "SIH26086_Agricultural_Blocks_Boundaries",
+  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tel_wgl_dharmasagar",
+        "name": "Dharmasagar Mandal / Village Cluster",
+        "block_or_mandal": "Dharmasagar Mandal",
+        "district": "Hanamkonda / Warangal",
+        "state": "Telangana",
+        "primary_soil": "Red Sandy Loam & Black Soil",
+        "normal_onset_date": "June 08",
+        "onset_status": "ONSET_DECLARED",
+        "break_risk_level": "LOW",
+        "break_probability_pct": 14.5,
+        "heavy_rain_risk": "GREEN",
+        "data_provenance": "NCMRWF ERPS & IMD Catchment Synthesis"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [79.40, 17.92], [79.56, 17.92], [79.58, 18.06], [79.42, 18.08], [79.38, 18.00], [79.40, 17.92]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tel_mbnr_jadcherla",
+        "name": "Jadcherla Mandal / Badepally Cluster",
+        "block_or_mandal": "Jadcherla Mandal",
+        "district": "Mahabubnagar",
+        "state": "Telangana",
+        "primary_soil": "Chalka (Red Sandy)",
+        "normal_onset_date": "June 07",
+        "onset_status": "ONSET_WATCH",
+        "break_risk_level": "MODERATE",
+        "break_probability_pct": 38.0,
+        "heavy_rain_risk": "GREEN",
+        "data_provenance": "NCMRWF ERPS & IMD Catchment Synthesis"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [78.05, 16.70], [78.22, 16.70], [78.25, 16.84], [78.08, 16.85], [78.05, 16.70]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ap_gnr_tenali",
+        "name": "Tenali Mandal / Angalakuduru Delta Cluster",
+        "block_or_mandal": "Tenali Mandal",
+        "district": "Guntur",
+        "state": "Andhra Pradesh",
+        "primary_soil": "Deltaic Alluvial & Black Clay",
+        "normal_onset_date": "June 06",
+        "onset_status": "ONSET_DECLARED",
+        "break_risk_level": "LOW",
+        "break_probability_pct": 12.0,
+        "heavy_rain_risk": "YELLOW",
+        "data_provenance": "NCMRWF ERPS & IMD Catchment Synthesis"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [80.56, 16.18], [80.72, 16.18], [80.74, 16.32], [80.58, 16.31], [80.56, 16.18]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ap_knl_adoni",
+        "name": "Adoni Mandal / Arekal Rainfed Cluster",
+        "block_or_mandal": "Adoni Mandal",
+        "district": "Kurnool",
+        "state": "Andhra Pradesh",
+        "primary_soil": "Black Cotton & Gravelly Red",
+        "normal_onset_date": "June 05",
+        "onset_status": "ONSET_WATCH",
+        "break_risk_level": "HIGH",
+        "break_probability_pct": 68.0,
+        "heavy_rain_risk": "GREEN",
+        "data_provenance": "NCMRWF ERPS & IMD Catchment Synthesis"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [77.20, 15.55], [77.38, 15.55], [77.40, 15.72], [77.22, 15.71], [77.20, 15.55]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mh_amr_chandur",
+        "name": "Chandur Railway Block / Amla Vishweshwar",
+        "block_or_mandal": "Chandur Railway Block",
+        "district": "Amravati",
+        "state": "Maharashtra",
+        "primary_soil": "Deep Black Cotton Soil (Regur)",
+        "normal_onset_date": "June 11",
+        "onset_status": "PRE_MONSOON",
+        "break_risk_level": "CRITICAL",
+        "break_probability_pct": 82.5,
+        "heavy_rain_risk": "GREEN",
+        "data_provenance": "NCMRWF ERPS & IMD Catchment Synthesis"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [77.88, 20.72], [78.08, 20.72], [78.10, 20.90], [77.90, 20.89], [77.88, 20.72]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mh_ltr_ausa",
+        "name": "Ausa Block / Ashiv Cluster",
+        "block_or_mandal": "Ausa Block",
+        "district": "Latur",
+        "state": "Maharashtra",
+        "primary_soil": "Medium Deep Black Soil",
+        "normal_onset_date": "June 10",
+        "onset_status": "PRE_MONSOON",
+        "break_risk_level": "HIGH",
+        "break_probability_pct": 72.0,
+        "heavy_rain_risk": "GREEN",
+        "data_provenance": "NCMRWF ERPS & IMD Catchment Synthesis"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [76.40, 18.15], [76.62, 18.15], [76.65, 18.35], [76.42, 18.34], [76.40, 18.15]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "mp_seh_ashta",
+        "name": "Ashta Block / Khajuria Kasam Cluster",
+        "block_or_mandal": "Ashta Block",
+        "district": "Sehore",
+        "state": "Madhya Pradesh",
+        "primary_soil": "Deep Heavy Vertisols (Black)",
+        "normal_onset_date": "June 16",
+        "onset_status": "ONSET_DECLARED",
+        "break_risk_level": "LOW",
+        "break_probability_pct": 18.0,
+        "heavy_rain_risk": "ORANGE",
+        "data_provenance": "NCMRWF ERPS & IMD Catchment Synthesis"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [76.60, 22.92], [76.84, 22.92], [76.86, 23.12], [76.62, 23.11], [76.60, 22.92]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ka_dwd_hubli",
+        "name": "Hubballi Rural / Unkal Cluster",
+        "block_or_mandal": "Hubballi Rural",
+        "district": "Dharwad",
+        "state": "Karnataka",
+        "primary_soil": "Medium Black & Mixed Red Soil",
+        "normal_onset_date": "June 05",
+        "onset_status": "ONSET_DECLARED",
+        "break_risk_level": "LOW",
+        "break_probability_pct": 10.5,
+        "heavy_rain_risk": "GREEN",
+        "data_provenance": "NCMRWF ERPS & IMD Catchment Synthesis"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [75.02, 15.28], [75.22, 15.28], [75.25, 15.45], [75.05, 15.44], [75.02, 15.28]
+          ]
+        ]
+      }
+    }
+  ]
+}

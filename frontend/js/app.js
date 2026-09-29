@@ -132,12 +132,71 @@ class SIHMonsoonApp {
       });
     }
 
+    // Messaging Gateway Sandbox Dispatch Handler
+    const dispatchBtn = document.getElementById('dispatch-notify-btn');
+    if (dispatchBtn) {
+      dispatchBtn.addEventListener('click', () => this.handleSimulatedDispatch());
+    }
+
     // Model Info Refresh
     const refreshModelBtn = document.getElementById('refresh-model-info-btn');
     if (refreshModelBtn) {
       refreshModelBtn.addEventListener('click', () => this.loadModelTransparency());
     }
   }
+
+  async handleSimulatedDispatch() {
+    const phoneInput = document.getElementById('notify-phone');
+    const channelSelect = document.getElementById('notify-channel');
+    const consentBox = document.getElementById('notify-consent');
+    const statusPill = document.getElementById('notify-status-pill');
+    const previewBox = document.getElementById('notify-message-preview');
+
+    if (!consentBox.checked) {
+      alert('Farmer opt-in consent is required before alert transmission.');
+      return;
+    }
+
+    const phone = phoneInput ? phoneInput.value : '+91-9876543210';
+    const channel = channelSelect ? channelSelect.value : 'sms';
+
+    // Format localized message body
+    let msgBody = '';
+    if (this.currentAdvisoryData && this.currentAdvisoryData.advisories && this.currentAdvisoryData.advisories.length > 0) {
+      const topCrop = this.currentAdvisoryData.advisories[0];
+      if (this.currentLang === 'te') {
+        msgBody = `[MoES-NCMRWF] ${topCrop.crop_name}: ${topCrop.priority_action} ${topCrop.irrigation_advice}`;
+      } else {
+        msgBody = `[MoES-NCMRWF] ${topCrop.crop_name}: ${topCrop.priority_action} ${topCrop.irrigation_advice}`;
+      }
+    } else {
+      msgBody = `[MoES-NCMRWF] Local Monsoon Advisory update for your village.`;
+    }
+
+    statusPill.textContent = 'TRANSMITTING...';
+    statusPill.style.color = '#f59e0b';
+
+    try {
+      const res = await fetch(`${API_BASE}/api/notifications/simulate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, channel, message: msgBody })
+      });
+      const data = await res.json();
+
+      statusPill.textContent = 'DELIVERED (SIMULATED)';
+      statusPill.style.color = '#10b981';
+      previewBox.innerHTML = `
+        <strong>Channel:</strong> ${data.channel.toUpperCase()} | <strong>Recipient:</strong> ${data.recipient_mask}<br/>
+        <strong>Status:</strong> ${data.status} (${data.timestamp.slice(11, 19)} IST)<br/>
+        <strong>Message Content:</strong><br/>
+        <span style="color:#f8fafc;">${msgBody}</span>
+      `;
+    } catch (err) {
+      statusPill.textContent = 'FAILED';
+      statusPill.style.color = '#f43f5e';
+      console.error('Dispatch error:', err);
+    }
 
   initMap() {
     this.mapManager = new MonsoonMapManager('map-container', (locId, lat, lon) => {
@@ -208,6 +267,7 @@ class SIHMonsoonApp {
     try {
       const res = await fetch(`${API_BASE}/api/risk-map`);
       const data = await res.json();
+      if (data.block_polygons) this.mapManager.renderBlockPolygons(data.block_polygons);
       if (data.isochrones) this.mapManager.renderIsochrones(data.isochrones);
       if (data.radar_grid) this.mapManager.renderRadarGrid(data.radar_grid);
     } catch (err) {
@@ -235,6 +295,7 @@ class SIHMonsoonApp {
       this.renderOnsetCard(forecastData);
       this.renderBreakCard(forecastData);
       this.renderTelemetry(forecastData);
+      this.renderClimateDrivers(forecastData);
       this.renderChartAndTimeline(forecastData);
       this.renderCrops(advisoryData);
 
@@ -362,6 +423,34 @@ class SIHMonsoonApp {
     document.getElementById('metric-temp-val').textContent = `${current.temp_max_c} °C`;
     document.getElementById('metric-moist-val').textContent = `${current.soil_moisture_pct} %`;
     document.getElementById('metric-humidity-val').textContent = `${current.humidity_pct} %`;
+  }
+
+  renderClimateDrivers(data) {
+    const cd = data.climate_drivers;
+    if (!cd) return;
+
+    const ensoVal = document.getElementById('tele-enso-val');
+    const ensoDesc = document.getElementById('tele-enso-desc');
+    if (ensoVal && cd.enso) {
+      const sign = cd.enso.nino34_anomaly_c >= 0 ? '+' : '';
+      ensoVal.textContent = `${sign}${cd.enso.nino34_anomaly_c.toFixed(2)} °C (${cd.enso.phase})`;
+      if (ensoDesc) ensoDesc.textContent = cd.enso.effect_on_monsoon || 'SST telemetry';
+    }
+
+    const iodVal = document.getElementById('tele-iod-val');
+    const iodDesc = document.getElementById('tele-iod-desc');
+    if (iodVal && cd.iod) {
+      const sign = cd.iod.dipole_mode_index_c >= 0 ? '+' : '';
+      iodVal.textContent = `${sign}${cd.iod.dipole_mode_index_c.toFixed(2)} °C (${cd.iod.phase})`;
+      if (iodDesc) iodDesc.textContent = cd.iod.effect_on_monsoon || 'Thermal gradient';
+    }
+
+    const mjoVal = document.getElementById('tele-mjo-val');
+    const mjoDesc = document.getElementById('tele-mjo-desc');
+    if (mjoVal && cd.mjo) {
+      mjoVal.textContent = `Phase ${cd.mjo.phase} (Amp: ${cd.mjo.amplitude.toFixed(1)})`;
+      if (mjoDesc) mjoDesc.textContent = cd.mjo.status || 'MJO Wave State';
+    }
   }
 
   renderChartAndTimeline(data) {

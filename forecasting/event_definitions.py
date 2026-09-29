@@ -213,3 +213,88 @@ class MeteorologicalEventDetector:
             "description": desc,
             "max_projected_daily_mm": max_rain
         }
+
+    def evaluate_climate_drivers_influence(
+        self,
+        enso_nino34: float = 0.0,
+        iod_dmi: float = 0.0,
+        mjo_phase: int = 3,
+        mjo_amplitude: float = 1.0
+    ) -> Dict[str, Any]:
+        """
+        Calculates large-scale climate teleconnection modulation on monsoon onset and break spells.
+        References:
+        - Ashok et al. (2001) - Impact of the Indian Ocean Dipole on the Indian summer monsoon.
+        - Sikka (1980) - Some aspects of the large-scale fluctuations of summer monsoon over India in relation to ENSO.
+        - Pai et al. (2011) - Impact of MJO on Indian Summer Monsoon Rainfall.
+        """
+        break_risk_modifier = 0.0
+        onset_acceleration_days = 0
+        mechanisms = []
+
+        # 1. ENSO Modulation
+        if enso_nino34 >= 0.5:
+            enso_phase = "El Niño"
+            enso_effect = "Elevates break spell risk; induces anomalous tropospheric subsidence over Central India."
+            break_risk_modifier += min(0.20, (enso_nino34 - 0.5) * 0.15)
+            onset_acceleration_days -= 3  # Sluggish / delayed onset tendency
+            mechanisms.append(f"El Niño state (Niño 3.4: +{enso_nino34:.2f}°C) favors suppressed convective activity and prolonged dry spells.")
+        elif enso_nino34 <= -0.5:
+            enso_phase = "La Niña"
+            enso_effect = "Suppresses break spells; enhances low-level monsoon trough cross-equatorial flow."
+            break_risk_modifier -= min(0.15, abs(enso_nino34 + 0.5) * 0.12)
+            onset_acceleration_days += 2
+            mechanisms.append(f"La Niña state (Niño 3.4: {enso_nino34:.2f}°C) reinforces active monsoon surge and moisture convergence.")
+        else:
+            enso_phase = "ENSO Neutral"
+            enso_effect = "Neutral Pacific forcing; regional SST and intraseasonal waves dominate."
+
+        # 2. Indian Ocean Dipole (IOD) Modulation
+        if iod_dmi >= 0.4:
+            iod_phase = "Positive IOD"
+            iod_effect = "Enhances Arabian Sea moisture flux; counters El Niño drying influence."
+            break_risk_modifier -= 0.10
+            mechanisms.append(f"Positive IOD (+{iod_dmi:.2f}°C) warms western Indian Ocean, driving strong Somali jet cross-equatorial moisture transport.")
+        elif iod_dmi <= -0.4:
+            iod_phase = "Negative IOD"
+            iod_effect = "Diverts equatorial moisture eastward toward Sumatra/Indonesia; increases break vulnerability."
+            break_risk_modifier += 0.12
+            mechanisms.append(f"Negative IOD ({iod_dmi:.2f}°C) weakens peninsular monsoon convergence.")
+        else:
+            iod_phase = "IOD Neutral"
+            iod_effect = "Normal Indian Ocean thermal dipole gradient."
+
+        # 3. Madden-Julian Oscillation (MJO) Intraseasonal Wave
+        # Active convective phases over Indian Ocean: Phase 2, 3, 4
+        # Suppressed convective phases over India: Phase 6, 7, 8
+        if mjo_phase in [2, 3, 4] and mjo_amplitude >= 1.0:
+            mjo_status = "Convectively Active over Indian Longitudes (Phases 2-4)"
+            break_risk_modifier -= 0.15
+            mechanisms.append(f"MJO Phase {mjo_phase} (amplitude {mjo_amplitude:.2f}) actively promotes deep convection and monsoonal revival.")
+        elif mjo_phase in [6, 7, 8] and mjo_amplitude >= 1.0:
+            mjo_status = "Convectively Suppressed over Indian Subcontinent (Phases 6-8)"
+            break_risk_modifier += 0.18
+            mechanisms.append(f"MJO Phase {mjo_phase} (amplitude {mjo_amplitude:.2f}) places core monsoon zone in descending suppressed branch of Walker cell.")
+        else:
+            mjo_status = f"MJO Phase {mjo_phase} (Weak / Neutral amplitude {mjo_amplitude:.2f})"
+
+        return {
+            "enso": {
+                "nino34_anomaly_c": enso_nino34,
+                "phase": enso_phase,
+                "effect_on_monsoon": enso_effect
+            },
+            "iod": {
+                "dipole_mode_index_c": iod_dmi,
+                "phase": iod_phase,
+                "effect_on_monsoon": iod_effect
+            },
+            "mjo": {
+                "phase": mjo_phase,
+                "amplitude": mjo_amplitude,
+                "status": mjo_status
+            },
+            "net_break_risk_modifier": round(break_risk_modifier, 3),
+            "onset_tendency_days": onset_acceleration_days,
+            "mechanisms": mechanisms
+        }
