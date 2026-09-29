@@ -102,7 +102,7 @@ class MonsoonMapManager {
       onEachFeature: (feature, layer) => {
         const p = feature.properties;
         layer.bindTooltip(
-          `<strong>${p.name}</strong><br/>Break Risk: <b>${p.break_risk_level} (${p.break_probability_pct}%)</b><br/>Onset: ${p.onset_status}`,
+          `<strong>${p.name}</strong><br/>Break Risk: <b>${p.break_risk_level} (${p.break_probability_pct}%)</b><br/>Onset: ${p.onset_status}<br/><span style="color:#f59e0b; font-size:10px;">Approximate Demo Polygon</span>`,
           { direction: 'top', className: 'map-tooltip' }
         );
 
@@ -110,6 +110,9 @@ class MonsoonMapManager {
           <div style="font-family:inherit; font-size:12px; color:#0f172a; min-width:180px;">
             <strong style="font-size:13px; color:#1e293b;">${p.name}</strong><br/>
             <span>${p.block_or_mandal}, ${p.district}</span><br/>
+            <div style="font-size:10px; color:#b45309; background:#fef3c7; padding:2px 5px; border-radius:3px; margin:4px 0;">
+              ⚠️ Approximate Demonstration Geometry (Not official administrative boundary)
+            </div>
             <hr style="margin:4px 0; border:0; border-top:1px solid #cbd5e1;"/>
             <b>Monsoon Onset:</b> ${p.onset_status}<br/>
             <b>Dry Spell Risk:</b> <span style="font-weight:700; color:${p.break_risk_level === 'CRITICAL' ? '#e11d48' : '#059669'};">${p.break_risk_level} (${p.break_probability_pct}%)</span><br/>

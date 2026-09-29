@@ -70,13 +70,43 @@ class MonsoonForecastPipeline:
         )
 
         # 2. Climate Drivers Teleconnection (ENSO, IOD, MJO)
-        # Using representative current observations from DB or active season indices
+        # Attempt live verified NOAA CPC ONI retrieval with safe fast fallback
+        enso_source_status = "CONFIGURED_BENCHMARK"
+        enso_provenance = "Configured demonstration parameter (not live ground telemetry)"
+        nino34_val = 0.25
+
+        try:
+            from forecasting.real_data_connectors import fetch_noaa_cpc_oni
+            live_oni = fetch_noaa_cpc_oni(timeout_sec=2)
+            if live_oni.get("status") == "LIVE_VERIFIED":
+                nino34_val = float(live_oni["nino34_anomaly_c"])
+                enso_source_status = "LIVE_VERIFIED_NOAA_CPC"
+                enso_provenance = f"Live verified NOAA CPC ONI ({live_oni.get('season')} {live_oni.get('year')})"
+        except Exception:
+            pass
+
+        iod_val = 0.15
+        iod_source_status = "CONFIGURED_BENCHMARK"
+        iod_provenance = "Configured demonstration parameter (BOM automated access restricted by CDN policy)"
+
+        mjo_phase_val = 3
+        mjo_amp_val = 1.2
+        mjo_source_status = "CONFIGURED_BENCHMARK"
+        mjo_provenance = "Configured demonstration parameter (CPC RMM daily feed pending institutional parser)"
+
         climate_res = self.detector.evaluate_climate_drivers_influence(
-            enso_nino34=0.25,
-            iod_dmi=0.15,
-            mjo_phase=3,
-            mjo_amplitude=1.2
+            enso_nino34=nino34_val,
+            iod_dmi=iod_val,
+            mjo_phase=mjo_phase_val,
+            mjo_amplitude=mjo_amp_val
         )
+        climate_res["enso"]["source_status"] = enso_source_status
+        climate_res["enso"]["provenance_note"] = enso_provenance
+        climate_res["iod"]["source_status"] = iod_source_status
+        climate_res["iod"]["provenance_note"] = iod_provenance
+        climate_res["mjo"]["source_status"] = mjo_source_status
+        climate_res["mjo"]["provenance_note"] = mjo_provenance
+
         climate_break_mod = climate_res["net_break_risk_modifier"]
 
         # 3. Break Spell / Dry Spell Probability
@@ -98,9 +128,9 @@ class MonsoonForecastPipeline:
                     "humidity_pct": timeline[0]["humidity_pct"],
                     "olr_wm2": timeline[0]["olr_wm2"],
                     "zonal_wind_850hpa_ms": timeline[0]["zonal_wind_850hpa_ms"],
-                    "enso_nino34": 0.25,
-                    "iod_dmi": 0.15,
-                    "mjo_amplitude": 1.2,
+                    "enso_nino34": nino34_val,
+                    "iod_dmi": iod_val,
+                    "mjo_amplitude": mjo_amp_val,
                     "day_of_year": today.timetuple().tm_yday,
                     "latitude": location_meta["latitude"],
                     "elevation_m": location_meta["elevation_m"]
@@ -115,10 +145,38 @@ class MonsoonForecastPipeline:
 
         # 4. Multi-Horizon Uncertainty Calibration (7, 14, 21, 30 days)
         horizon_uncertainty_bands = {
-            7: {"uncertainty_pct": 8.0, "skill_tier": "High Synoptic Deterministic Skill", "model_confidence_score": 0.86},
-            14: {"uncertainty_pct": 16.0, "skill_tier": "Extended-Range Medium Skill (NEPS/MJO)", "model_confidence_score": 0.74},
-            21: {"uncertainty_pct": 24.0, "skill_tier": "Subseasonal (S2S) Probabilistic Outlook", "model_confidence_score": 0.62},
-            30: {"uncertainty_pct": 32.0, "skill_tier": "Monthly Climate Anomaly Trend (ENSO/IOD Background)", "model_confidence_score": 0.54}
+            7: {
+                "uncertainty_pct": 8.0,
+                "skill_tier": "High Synoptic Deterministic Skill",
+                "model_confidence_score": 0.86,
+                "uncertainty_type": "provisional_heuristic_assumption",
+                "is_empirically_calibrated": False,
+                "disclaimer": "Provisional assumption; not empirically calibrated against real ensemble dispersion."
+            },
+            14: {
+                "uncertainty_pct": 16.0,
+                "skill_tier": "Extended-Range Medium Skill (NEPS/MJO)",
+                "model_confidence_score": 0.74,
+                "uncertainty_type": "provisional_heuristic_assumption",
+                "is_empirically_calibrated": False,
+                "disclaimer": "Provisional assumption; not empirically calibrated against real ensemble dispersion."
+            },
+            21: {
+                "uncertainty_pct": 24.0,
+                "skill_tier": "Subseasonal (S2S) Probabilistic Outlook",
+                "model_confidence_score": 0.62,
+                "uncertainty_type": "provisional_heuristic_assumption",
+                "is_empirically_calibrated": False,
+                "disclaimer": "Provisional assumption; not empirically calibrated against real ensemble dispersion."
+            },
+            30: {
+                "uncertainty_pct": 32.0,
+                "skill_tier": "Monthly Climate Anomaly Trend (ENSO/IOD Background)",
+                "model_confidence_score": 0.54,
+                "uncertainty_type": "provisional_heuristic_assumption",
+                "is_empirically_calibrated": False,
+                "disclaimer": "Provisional assumption; not empirically calibrated against real ensemble dispersion."
+            }
         }
         h_info = horizon_uncertainty_bands.get(horizon_days, horizon_uncertainty_bands[14])
 
@@ -150,6 +208,8 @@ class MonsoonForecastPipeline:
             "generation_timestamp": datetime.datetime.now().isoformat(),
             "validity_period": {"start": validity_start, "end": validity_end},
             "is_demonstration": True,
+            "disclaimer": "DEMONSTRATION FORECAST — NOT FOR AGRICULTURAL DECISIONS",
+            "accuracy_notice": "Evaluated on synthetic benchmark data; does not establish real-world forecast accuracy.",
             "data_provenance": "IMD Operational Criteria + NCMRWF Extended Range Principles + Synthetic Benchmark (SIH26086)",
             "climate_drivers": climate_res,
             "onset_outlook": {

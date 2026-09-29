@@ -75,9 +75,9 @@
   <main class="dashboard-container">
 
     <!-- Demonstration Mode Disclaimer Banner -->
-    <div class="demo-notice-bar" style="background: rgba(59, 130, 246, 0.12); border: 1px dashed var(--accent-cyan); border-radius: var(--radius-sm); padding: 0.5rem 1rem; font-size: 0.775rem; color: #93c5fd; display: flex; justify-content: space-between; align-items: center;">
-      <span>ℹ️ <strong data-i18n="banner_demo_notice">DEMONSTRATION PROTOTYPE: Using verified IMD operational criteria with SYNTHETIC DEMONSTRATION DATA benchmark.</strong></span>
-      <span style="font-size: 0.72rem; color: #cbd5e1;">Spatial Scale: Block/Village (~1km-5km)</span>
+    <div class="demo-notice-bar" style="background: rgba(239, 68, 68, 0.12); border: 1px dashed #f87171; border-radius: var(--radius-sm); padding: 0.6rem 1rem; font-size: 0.8rem; color: #fca5a5; display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+      <span>⚠️ <strong data-i18n="banner_demo_warning">DEMONSTRATION FORECAST — NOT FOR AGRICULTURAL DECISIONS.</strong> <span data-i18n="banner_demo_subtext">Operates on synthetic benchmark data. Uncertainty intervals are provisional assumptions.</span></span>
+      <span style="font-size: 0.72rem; color: #e2e8f0; background:rgba(0,0,0,0.3); padding:2px 8px; border-radius:4px;" data-i18n="badge_demo_mode">SYNTHETIC BENCHMARK</span>
     </div>
 
     <!-- Alert / Agro-Met Banner -->
@@ -188,7 +188,12 @@
       <!-- Left: Interactive Leaflet Map -->
       <div class="glass-card map-card">
         <div class="map-header">
-          <span class="card-title" data-i18n="map_title">🗺️ Interactive Geospatial Monsoon & Risk Map</span>
+          <div>
+            <span class="card-title" data-i18n="map_title">🗺️ Geospatial Risk Map (Approximate Demonstration Polygons)</span>
+            <div style="font-size:0.7rem; color:var(--text-dim); margin-top:3px;" data-i18n="map_geometry_note">
+              * Polygons are approximate demonstration bounding-boxes, not official Survey of India administrative boundaries. Isochrones and radar points are illustrative simulations.
+            </div>
+          </div>
           <div class="map-controls-inline">
             <button id="toggle-isochrones" class="map-filter-btn active">
               <span data-i18n="map_isochrones_toggle">Monsoon Isochrones (NLM)</span>
@@ -227,7 +232,12 @@
       <!-- Right: Chart.js Timeline Chart -->
       <div class="glass-card timeline-card">
         <div class="card-header">
-          <span class="card-title" data-i18n="chart_title">📅 Rainfall & Soil Moisture Trajectory</span>
+          <div>
+            <span class="card-title" data-i18n="chart_title">📅 Rainfall & Soil Moisture Trajectory</span>
+            <div style="font-size:0.68rem; color:var(--text-dim); margin-top:2px;" data-i18n="chart_uncertainty_note">
+              * Uncertainty intervals are provisional heuristic assumptions based on qualitative S2S degradation, not empirically calibrated.
+            </div>
+          </div>
           <span style="font-size:0.75rem; color:var(--text-dim);">Forecast Horizon</span>
         </div>
         <div style="flex:1; min-height:220px; position:relative; padding-top:0.5rem;">
@@ -260,20 +270,32 @@
       </div>
       <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:1rem; margin-top:0.5rem;">
         <div style="background:rgba(10,15,29,0.5); padding:0.9rem; border-radius:10px; border:1px solid rgba(255,255,255,0.05);">
-          <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; font-weight:700;">ENSO (Niño 3.4 Region)</div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; font-weight:700;">ENSO (Niño 3.4 Region)</div>
+            <span id="tele-enso-status" class="badge" style="font-size:0.65rem; background:rgba(255,255,255,0.08); color:#94a3b8;">BENCHMARK</span>
+          </div>
           <div style="font-size:1.3rem; font-weight:800; color:#fff; margin-top:0.2rem;" id="tele-enso-val">+0.25 °C (Neutral)</div>
           <small style="color:var(--text-muted); font-size:0.75rem;" id="tele-enso-desc">Pacific SST anomaly within neutral threshold</small>
         </div>
         <div style="background:rgba(10,15,29,0.5); padding:0.9rem; border-radius:10px; border:1px solid rgba(255,255,255,0.05);">
-          <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; font-weight:700;">Indian Ocean Dipole (BOM DMI)</div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; font-weight:700;">Indian Ocean Dipole (BOM DMI)</div>
+            <span id="tele-iod-status" class="badge" style="font-size:0.65rem; background:rgba(255,255,255,0.08); color:#94a3b8;">CONFIGURED BENCHMARK</span>
+          </div>
           <div style="font-size:1.3rem; font-weight:800; color:#38bdf8; margin-top:0.2rem;" id="tele-iod-val">+0.15 °C (Neutral)</div>
           <small style="color:var(--text-muted); font-size:0.75rem;" id="tele-iod-desc">Normal equatorial thermal gradient</small>
         </div>
         <div style="background:rgba(10,15,29,0.5); padding:0.9rem; border-radius:10px; border:1px solid rgba(255,255,255,0.05);">
-          <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; font-weight:700;">MJO Convective Wave (RMM)</div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; font-weight:700;">MJO Convective Wave (RMM)</div>
+            <span id="tele-mjo-status" class="badge" style="font-size:0.65rem; background:rgba(255,255,255,0.08); color:#94a3b8;">CONFIGURED BENCHMARK</span>
+          </div>
           <div style="font-size:1.3rem; font-weight:800; color:#10b981; margin-top:0.2rem;" id="tele-mjo-val">Phase 3 (Amp: 1.2)</div>
           <small style="color:var(--text-muted); font-size:0.75rem;" id="tele-mjo-desc">Convectively active over Indian Ocean</small>
         </div>
+      </div>
+      <div style="font-size:0.72rem; color:var(--text-muted); margin-top:0.65rem; padding-top:0.4rem; border-top:1px solid rgba(255,255,255,0.04);" data-i18n="climate_drivers_note">
+        * Climate indices marked [CONFIGURED BENCHMARK] are demonstration parameters, not live telemetry. NOAA CPC ONI connector actively retrieves verified real NOAA SST indices when available.
       </div>
     </section>
 

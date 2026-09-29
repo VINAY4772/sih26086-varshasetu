@@ -73,6 +73,17 @@ def initialise_database(db_path: str = None) -> None:
             0
         ),
         (
+            "nasa_power_daily",
+            "NASA POWER Agroclimatology Daily Archive",
+            "https://power.larc.nasa.gov/api/temporal/daily/point",
+            "0.5° x 0.5° global grid (~50km) interpolated to coordinate",
+            "Daily",
+            "Daily (2-3 day operational latency)",
+            "NASA Open Data Policy (Public Domain)",
+            "Satellite and assimilation-derived daily precipitation (PRECTOTCORR) and surface meteorology for agricultural modeling.",
+            0
+        ),
+        (
             "synthetic_demo_feed",
             "SYNTHETIC DEMONSTRATION DATA (SIH26086 Mock Pipeline)",
             "file://data/sample/synthetic_weather_sample.csv",

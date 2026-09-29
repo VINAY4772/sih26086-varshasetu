@@ -20,6 +20,8 @@ def get_model_evaluation_report() -> Dict[str, Any]:
 
     return {
         "status": "VALIDATED",
+        "validation_dataset": "SYNTHETIC DEMONSTRATION DATA (4,416 records, 2023-2025)",
+        "real_world_validation": False,
         "model_type": meta.get("model_type", "Random Forest Classifier"),
         "training_period": meta.get("training_period"),
         "evaluation_period": meta.get("evaluation_period"),
@@ -34,7 +36,9 @@ def get_model_evaluation_report() -> Dict[str, Any]:
         },
         "scientific_interpretation": (
             "Model demonstrated positive Brier Skill Score relative to Climatology baseline "
-            "on independent chronological test observations."
+            "on the synthetic demonstration test partition. "
+            "IMPORTANT: These metrics evaluate synthetic demonstration patterns only and "
+            "do NOT establish real-world forecasting accuracy against operational IMD ground observations."
         )
     }
 

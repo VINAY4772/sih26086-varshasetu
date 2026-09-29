@@ -165,6 +165,11 @@ def get_risk_map():
             block_polygons = None
 
     return jsonify({
+        "map_type": "DEMONSTRATION_RISK_MAP",
+        "disclaimer": "DEMONSTRATION ONLY — Map polygons are approximate geometric illustrations, not official administrative boundaries from Survey of India.",
+        "isochrones_provenance": "Simulated Normal Isochrone Contours (Illustrative Demonstration)",
+        "radar_provenance": "Simulated Doppler Radar Reflectivity Points (Illustrative Demonstration)",
+        "polygons_provenance": "Approximate Bounding-Box Polygons (Not Official Administrative Boundaries)",
         "isochrones": isochrones,
         "radar_grid": radar_grid,
         "locations": location_markers,

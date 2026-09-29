@@ -17,7 +17,7 @@
         "break_risk_level": "LOW",
         "break_probability_pct": 14.5,
         "heavy_rain_risk": "GREEN",
-        "data_provenance": "NCMRWF ERPS & IMD Catchment Synthesis"
+        "data_provenance": "Approximate Demonstration Geometry (Not official administrative boundary)"
       },
       "geometry": {
         "type": "Polygon",
@@ -42,7 +42,7 @@
         "break_risk_level": "MODERATE",
         "break_probability_pct": 38.0,
         "heavy_rain_risk": "GREEN",
-        "data_provenance": "NCMRWF ERPS & IMD Catchment Synthesis"
+        "data_provenance": "Approximate Demonstration Geometry (Not official administrative boundary)"
       },
       "geometry": {
         "type": "Polygon",
@@ -67,7 +67,7 @@
         "break_risk_level": "LOW",
         "break_probability_pct": 12.0,
         "heavy_rain_risk": "YELLOW",
-        "data_provenance": "NCMRWF ERPS & IMD Catchment Synthesis"
+        "data_provenance": "Approximate Demonstration Geometry (Not official administrative boundary)"
       },
       "geometry": {
         "type": "Polygon",
@@ -92,7 +92,7 @@
         "break_risk_level": "HIGH",
         "break_probability_pct": 68.0,
         "heavy_rain_risk": "GREEN",
-        "data_provenance": "NCMRWF ERPS & IMD Catchment Synthesis"
+        "data_provenance": "Approximate Demonstration Geometry (Not official administrative boundary)"
       },
       "geometry": {
         "type": "Polygon",
@@ -117,7 +117,7 @@
         "break_risk_level": "CRITICAL",
         "break_probability_pct": 82.5,
         "heavy_rain_risk": "GREEN",
-        "data_provenance": "NCMRWF ERPS & IMD Catchment Synthesis"
+        "data_provenance": "Approximate Demonstration Geometry (Not official administrative boundary)"
       },
       "geometry": {
         "type": "Polygon",
@@ -142,7 +142,7 @@
         "break_risk_level": "HIGH",
         "break_probability_pct": 72.0,
         "heavy_rain_risk": "GREEN",
-        "data_provenance": "NCMRWF ERPS & IMD Catchment Synthesis"
+        "data_provenance": "Approximate Demonstration Geometry (Not official administrative boundary)"
       },
       "geometry": {
         "type": "Polygon",
@@ -167,7 +167,7 @@
         "break_risk_level": "LOW",
         "break_probability_pct": 18.0,
         "heavy_rain_risk": "ORANGE",
-        "data_provenance": "NCMRWF ERPS & IMD Catchment Synthesis"
+        "data_provenance": "Approximate Demonstration Geometry (Not official administrative boundary)"
       },
       "geometry": {
         "type": "Polygon",
@@ -192,7 +192,7 @@
         "break_risk_level": "LOW",
         "break_probability_pct": 10.5,
         "heavy_rain_risk": "GREEN",
-        "data_provenance": "NCMRWF ERPS & IMD Catchment Synthesis"
+        "data_provenance": "Approximate Demonstration Geometry (Not official administrative boundary)"
       },
       "geometry": {
         "type": "Polygon",

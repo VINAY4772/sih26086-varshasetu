@@ -431,25 +431,49 @@ class SIHMonsoonApp {
 
     const ensoVal = document.getElementById('tele-enso-val');
     const ensoDesc = document.getElementById('tele-enso-desc');
+    const ensoStatus = document.getElementById('tele-enso-status');
     if (ensoVal && cd.enso) {
       const sign = cd.enso.nino34_anomaly_c >= 0 ? '+' : '';
       ensoVal.textContent = `${sign}${cd.enso.nino34_anomaly_c.toFixed(2)} °C (${cd.enso.phase})`;
       if (ensoDesc) ensoDesc.textContent = cd.enso.effect_on_monsoon || 'SST telemetry';
+      if (ensoStatus) {
+        if (cd.enso.source_status === 'LIVE_VERIFIED_NOAA_CPC') {
+          ensoStatus.textContent = 'LIVE NOAA CPC';
+          ensoStatus.style.background = 'rgba(16,185,129,0.2)';
+          ensoStatus.style.color = '#34d399';
+        } else {
+          ensoStatus.textContent = 'CONFIGURED BENCHMARK';
+          ensoStatus.style.background = 'rgba(255,255,255,0.08)';
+          ensoStatus.style.color = '#94a3b8';
+        }
+      }
     }
 
     const iodVal = document.getElementById('tele-iod-val');
     const iodDesc = document.getElementById('tele-iod-desc');
+    const iodStatus = document.getElementById('tele-iod-status');
     if (iodVal && cd.iod) {
       const sign = cd.iod.dipole_mode_index_c >= 0 ? '+' : '';
       iodVal.textContent = `${sign}${cd.iod.dipole_mode_index_c.toFixed(2)} °C (${cd.iod.phase})`;
       if (iodDesc) iodDesc.textContent = cd.iod.effect_on_monsoon || 'Thermal gradient';
+      if (iodStatus) {
+        iodStatus.textContent = 'CONFIGURED BENCHMARK';
+        iodStatus.style.background = 'rgba(255,255,255,0.08)';
+        iodStatus.style.color = '#94a3b8';
+      }
     }
 
     const mjoVal = document.getElementById('tele-mjo-val');
     const mjoDesc = document.getElementById('tele-mjo-desc');
+    const mjoStatus = document.getElementById('tele-mjo-status');
     if (mjoVal && cd.mjo) {
       mjoVal.textContent = `Phase ${cd.mjo.phase} (Amp: ${cd.mjo.amplitude.toFixed(1)})`;
       if (mjoDesc) mjoDesc.textContent = cd.mjo.status || 'MJO Wave State';
+      if (mjoStatus) {
+        mjoStatus.textContent = 'CONFIGURED BENCHMARK';
+        mjoStatus.style.background = 'rgba(255,255,255,0.08)';
+        mjoStatus.style.color = '#94a3b8';
+      }
     }
   }
 

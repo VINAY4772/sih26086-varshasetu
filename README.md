@@ -33,23 +33,26 @@ The Indian Summer Monsoon dictates the agricultural cycle and livelihood of over
 
 ## 📋 3. Requirements Traceability Matrix Summary
 
-All 12 core requirements have been implemented and verified with automated test suites. Full details are maintained in [`docs/requirements_traceability.md`](docs/requirements_traceability.md).
+All requirements are systematically tracked in [`docs/requirements_traceability.md`](docs/requirements_traceability.md) according to 5 strict verification categories:
 
 | Req ID | Capability | Status | Verified Test Suite |
 | :--- | :--- | :--- | :--- |
-| **REQ-01** | Monsoon Onset Prediction & Confidence | **Implemented and tested** | `tests/test_event_definitions.py::test_onset_criteria_satisfied` |
-| **REQ-02** | Break Spell & Dry Spell Forecasting | **Implemented and tested** | `tests/test_event_definitions.py::test_break_spell_critical_detection` |
-| **REQ-03** | Subseasonal Horizons (7, 14, 21, 30 Days) | **Implemented and tested** | `tests/test_forecasting.py::test_forecast_pipeline_horizons` |
-| **REQ-04** | Large-scale Climate Drivers (ENSO, IOD, MJO) | **Implemented and tested** | `tests/test_forecasting.py::test_model_evaluation_report_structure` |
-| **REQ-05** | Regional Ingestion & Unit Validation | **Implemented and tested** | `tests/test_ingestion.py::test_ingestion_valid_csv` |
-| **REQ-06** | Block & Village Scale Resolution | **Implemented and tested** | `tests/test_database.py::test_database_seed_locations_and_sources` |
-| **REQ-07** | Anomalies, Dry-Spell & Heavy Rain Risk | **Implemented and tested** | `tests/test_event_definitions.py::test_rainfall_anomaly_categories` |
-| **REQ-08** | Interactive Color-Coded Map & Location Table | **Implemented and tested** | `tests/test_api.py::test_api_risk_map` |
-| **REQ-09** | Crop-Specific Guidance (Paddy, Cotton, etc.) | **Implemented and tested** | `tests/test_advisories.py::test_crop_profiles_completeness` |
-| **REQ-10** | Mobile-First UI & Notification Sandbox | **Implemented and tested** | `tests/test_api.py::test_api_notification_simulate` |
-| **REQ-11** | English & Telugu Bilingual Support | **Implemented and tested** | `tests/test_locales.py::test_locale_files_exist_and_valid` |
-| **REQ-12** | Model Transparency & Uncertainty Disclosures | **Implemented and tested** | `tests/test_api.py::test_api_model_info` |
-| **REQ-13** | Live Operational IMD API Direct Credentials | **Blocked by external dependency** | Requires official MoES department access keys |
+| **REQ-PRI-1** | 7–30-Day Probabilistic Monsoon Outlook | **Demonstration using synthetic data** | `tests/test_forecasting.py::test_forecast_pipeline_horizons` |
+| **REQ-PRI-2** | Climate Drivers (ENSO, IOD, MJO) Telemetry | **Partially implemented** | `tests/test_transparency_and_provenance.py::test_climate_drivers_provenance_labels` |
+| **REQ-PRI-3** | Block/Village Spatial Risk Map & Geometry | **Demonstration using synthetic data** | `tests/test_api.py::test_api_risk_map` |
+| **REQ-PRI-4** | ICAR-CRIDA Crop Agronomic Advisory Engine | **Implemented and tested** | `tests/test_advisories.py::test_crop_profiles_completeness` |
+| **REQ-PRI-5** | Mobile Web App & Messaging Sandbox (Bilingual) | **Implemented and tested** | `tests/test_locales.py::test_locale_files_exist_and_valid` |
+| **REQ-SUP-1** | IMD Operational Onset & False-Alarm Filter | **Implemented and tested** | `tests/test_event_definitions.py::test_onset_criteria_satisfied` |
+| **REQ-SUP-2** | IMD 5-Tier Rainfall Anomaly Classification | **Implemented and tested** | `tests/test_event_definitions.py::test_rainfall_anomaly_categories` |
+| **REQ-SUP-3** | Heavy Rainfall Early Warning Alerts | **Implemented and tested** | `tests/test_event_definitions.py::test_heavy_rainfall_risk_levels` |
+| **REQ-SUP-4** | Data Ingestion & Quality Control | **Implemented and tested** | `tests/test_ingestion.py::test_ingestion_valid_csv` |
+| **REQ-SUP-5** | Real Data Connectors (NOAA CPC ONI, NASA POWER) | **Implemented and tested** | `tests/test_transparency_and_provenance.py::test_real_data_connectors_structure` |
+| **REQ-SUP-6** | Model Transparency & Synthetic Disclaimers | **Implemented and tested** | `tests/test_transparency_and_provenance.py::test_model_info_synthetic_accuracy_disclaimer` |
+| **REQ-DEP-1** | Operational IMD 0.25° Gridded Direct Feed | **Dependent on external data or credentials** | Requires MoES institutional MoU & credentials |
+| **REQ-DEP-2** | NCMRWF Ensemble GRIB2 Stream Access | **Dependent on external data or credentials** | Requires NCMRWF internal HPC network access |
+| **REQ-DEP-3** | Pan-India Cadastral Village Boundaries | **Dependent on external data or credentials** | Survey of India cadastral boundaries restricted |
+| **REQ-DEP-4** | Telecom SMS / WhatsApp Production Gateway | **Dependent on external data or credentials** | Requires TRAI DLT registration & SMS gateway |
+| **REQ-VAL-1** | Empirical Real-World Ground-Truth Validation | **Not yet validated against real-world observations** | Pending historical multi-year IMD station archive |
 
 ---
 
@@ -82,24 +85,24 @@ python database/initialise.py
 # Ingest demonstration dataset
 python forecasting/data_ingestion.py
 
-# Train Random Forest model and compute chronological validation metrics
+# Train Random Forest model on synthetic benchmark
 python forecasting/train.py
 ```
 
 ### 4. Start the Application
 ```bash
-python app.py
+PORT=5050 python app.py
 ```
-Open your browser at: **`http://localhost:5000`** (or `http://127.0.0.1:5000/app/`).
+Open your browser at: **`http://localhost:5050`** (or `http://127.0.0.1:5050`).
 
 ---
 
 ## 🧪 5. Automated Testing
-Run the complete automated test suite (30 tests covering API, ingestion, physics rules, and models):
+Run the complete automated test suite (36 tests covering API, ingestion, physics rules, models, real data connectors, and transparency disclaimers):
 ```bash
 pytest tests/ -v
 ```
-All **30 tests pass** in under 2 seconds.
+All **36 tests pass** with complete reproducibility.
 
 ---
 
