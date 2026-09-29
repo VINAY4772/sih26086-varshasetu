@@ -1,0 +1,15 @@
+{
+  "model_type": "RandomForestClassifier",
+  "training_period": "2023-05-01 to 2024-10-31",
+  "evaluation_period": "2025-05-01 to 2025-10-31",
+  "train_samples": 2920,
+  "test_samples": 1472,
+  "base_rate_climatology": 0.6096,
+  "brier_score_rf": 0.2203,
+  "brier_score_climatology": 0.2616,
+  "brier_skill_score": 0.1577,
+  "roc_auc": 0.7118,
+  "f1_score": 0.6432,
+  "precision": 0.7191,
+  "recall": 0.5819
+}

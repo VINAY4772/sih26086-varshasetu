@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIH26086: Hyperlocal Monsoon Onset & Break Prediction System</title>
+  <meta name="description" content="Operational Block & Village scale monsoon onset, break spell prediction, and agricultural advisories for Ministry of Earth Sciences (MoES).">
+
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Leaflet GIS CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+  <!-- Chart.js for Rainfall & Forecast Charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Top App Navigation -->
+  <header class="app-header">
+    <div class="brand-section">
+      <div class="brand-logo-icon">🌧️</div>
+      <div class="brand-text">
+        <h1 data-i18n="app_title">SIH26086: Hyperlocal Monsoon Prediction</h1>
+        <div class="brand-subtitle" data-i18n="ministry_subtitle">Ministry of Earth Sciences (MoES) • Block & Village Scale</div>
+      </div>
+    </div>
+
+    <div class="nav-controls">
+      <!-- Demonstration Scenario Pills -->
+      <div class="scenario-selector" title="Demonstration Scenario Simulator">
+        <button class="scenario-btn active" data-scenario="default" id="sim-normal" data-i18n="scenario_normal">Normal Monsoon</button>
+        <button class="scenario-btn" data-scenario="onset_active" id="sim-active" data-i18n="scenario_active">Active Onset Surge</button>
+        <button class="scenario-btn" data-scenario="break_spell" id="sim-break" data-i18n="scenario_break">Severe Break Spell</button>
+        <button class="scenario-btn" data-scenario="pre_monsoon" id="sim-pre" data-i18n="scenario_pre">Pre-Monsoon Shower</button>
+      </div>
+
+      <!-- Forecast Horizon Selector -->
+      <div class="select-wrapper">
+        <select id="horizon-select" class="control-select" aria-label="Forecast Horizon">
+          <option value="7" data-i18n="horizon_7d">7 Days Outlook</option>
+          <option value="14" selected data-i18n="horizon_14d">14 Days Outlook</option>
+          <option value="21" data-i18n="horizon_21d">21 Days Outlook</option>
+          <option value="30" data-i18n="horizon_30d">30 Days Outlook</option>
+        </select>
+        <span class="select-arrow">▼</span>
+      </div>
+
+      <!-- Village / Block Dropdown -->
+      <div class="select-wrapper">
+        <select id="location-select" class="control-select" aria-label="Select Village or Block">
+          <!-- Populated dynamically via JS -->
+        </select>
+        <span class="select-arrow">▼</span>
+      </div>
+
+      <!-- English & Telugu Language Selector -->
+      <div class="select-wrapper">
+        <select id="lang-select" class="control-select" aria-label="Select Language">
+          <option value="en">English (EN)</option>
+          <option value="te">తెలుగు (Telugu)</option>
+        </select>
+        <span class="select-arrow">▼</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="dashboard-container">
+
+    <!-- Demonstration Mode Disclaimer Banner -->
+    <div class="demo-notice-bar" style="background: rgba(59, 130, 246, 0.12); border: 1px dashed var(--accent-cyan); border-radius: var(--radius-sm); padding: 0.5rem 1rem; font-size: 0.775rem; color: #93c5fd; display: flex; justify-content: space-between; align-items: center;">
+      <span>ℹ️ <strong data-i18n="banner_demo_notice">DEMONSTRATION PROTOTYPE: Using verified IMD operational criteria with SYNTHETIC DEMONSTRATION DATA benchmark.</strong></span>
+      <span style="font-size: 0.72rem; color: #cbd5e1;">Spatial Scale: Block/Village (~1km-5km)</span>
+    </div>
+
+    <!-- Alert / Agro-Met Banner -->
+    <section id="alert-banner" class="alert-banner alert-green" aria-live="polite">
+      <div class="alert-content">
+        <span id="alert-icon" class="alert-icon">🌱</span>
+        <div>
+          <div id="alert-headline" class="alert-title">Evaluating Local Monsoon Circulation...</div>
+          <div id="alert-desc" class="alert-desc">Connecting to IMD gridded telemetry and meteorological model...</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:0.5rem; align-items:center;">
+        <button id="voice-advisory-btn" class="voice-btn" title="Read Aloud in Selected Language">
+          <span>🔊</span> <span data-i18n="btn_listen_audio">Listen Audio Advisory</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Top 4 Key Metrics Status Grid -->
+    <section class="status-grid">
+
+      <!-- Card 1: Monsoon Onset Verification & Forecast -->
+      <div class="glass-card">
+        <div class="card-header">
+          <span class="card-title" data-i18n="onset_status_title">🌦️ Monsoon Onset Outlook</span>
+          <span id="onset-phase-badge" class="badge badge-active">Active</span>
+        </div>
+        <div class="primary-stat" id="predicted-onset-date">Calculating...</div>
+        <div class="secondary-stat">
+          <span data-i18n="normal_onset_label">IMD Climatological Normal</span>: <b id="normal-onset-date" style="color:#fff;">June 08</b> | 
+          <span data-i18n="confidence_label">Confidence</span>: <b id="onset-confidence" style="color:var(--accent-cyan);">88%</b>
+        </div>
+
+        <div class="criteria-list">
+          <div class="criteria-item" id="crit-rain">
+            <span class="criteria-label" data-i18n="crit_rain_label">48-Hour Consecutive Rain (≥2.5mm)</span>
+            <span class="criteria-status-tag tag-pass" id="tag-rain">✓ SATISFIED</span>
+          </div>
+          <div class="criteria-item" id="crit-wind">
+            <span class="criteria-label" data-i18n="crit_wind_label">Westerly Jet at 850hPa (≥15 kts)</span>
+            <span class="criteria-status-tag tag-pass" id="tag-wind">✓ SATISFIED</span>
+          </div>
+          <div class="criteria-item" id="crit-olr">
+            <span class="criteria-label" data-i18n="crit_olr_label">Satellite OLR (<200 W/m² Convection)</span>
+            <span class="criteria-status-tag tag-pass" id="tag-olr">✓ SATISFIED</span>
+          </div>
+          <div class="criteria-item" id="crit-dir">
+            <span class="criteria-label" data-i18n="crit_dir_label">Surface South-Westerly Flow</span>
+            <span class="criteria-status-tag tag-pass" id="tag-dir">✓ SATISFIED</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Monsoon Break & Drought Risk -->
+      <div class="glass-card">
+        <div class="card-header">
+          <span class="card-title" data-i18n="break_risk_title">☀️ Break Spell & Drought Risk</span>
+          <span id="break-risk-badge" class="badge badge-low">LOW RISK</span>
+        </div>
+        <div class="primary-stat" id="break-probability-val">15.0%</div>
+        <div class="secondary-stat">
+          <span data-i18n="dry_days_label">Consecutive Dry Days Projected</span>: <b id="dry-days-val" style="color:#fff;">1 Day</b>
+        </div>
+
+        <div class="criteria-list">
+          <div class="criteria-item">
+            <span class="criteria-label" data-i18n="anomaly_departure_label">Rainfall Anomaly Departure</span>
+            <span id="anomaly-val" style="font-size:0.75rem; color:var(--accent-cyan); font-weight:700;">+12.4% (Normal)</span>
+          </div>
+          <div class="criteria-item">
+            <span class="criteria-label" data-i18n="heavy_rain_title">Heavy Rainfall Risk</span>
+            <span id="heavy-rain-val" style="font-size:0.75rem; color:#a7f3d0; font-weight:700;">GREEN (No Heavy Rain)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Hyperlocal Catchment Telemetry -->
+      <div class="glass-card">
+        <div class="card-header">
+          <span class="card-title" data-i18n="telemetry_title">📊 Catchment Telemetry</span>
+          <span class="badge" style="background:rgba(255,255,255,0.08); color:#cbd5e1;">IMD Standard Units</span>
+        </div>
+        <div class="metrics-pill-grid">
+          <div class="metric-pill">
+            <span class="label" data-i18n="rainfall_label">Rainfall</span>
+            <span class="value" id="metric-rain-val">18.5 mm</span>
+          </div>
+          <div class="metric-pill">
+            <span class="label" data-i18n="temp_label">Max Temp</span>
+            <span class="value" id="metric-temp-val">28.5 °C</span>
+          </div>
+          <div class="metric-pill">
+            <span class="label" data-i18n="soil_moisture_label">Soil Moisture</span>
+            <span class="value" id="metric-moist-val">68.0 %</span>
+          </div>
+          <div class="metric-pill">
+            <span class="label" data-i18n="humidity_label">Humidity</span>
+            <span class="value" id="metric-humidity-val">82 %</span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Geospatial Map & Chart Section -->
+    <section class="maps-and-charts-grid">
+
+      <!-- Left: Interactive Leaflet Map -->
+      <div class="glass-card map-card">
+        <div class="map-header">
+          <span class="card-title" data-i18n="map_title">🗺️ Interactive Geospatial Monsoon & Risk Map</span>
+          <div class="map-controls-inline">
+            <button id="toggle-isochrones" class="map-filter-btn active">
+              <span data-i18n="map_isochrones_toggle">Monsoon Isochrones (NLM)</span>
+            </button>
+            <button id="toggle-radar" class="map-filter-btn active">
+              <span data-i18n="map_radar_toggle">Rainfall Radar</span>
+            </button>
+            <button id="toggle-table-fallback" class="map-filter-btn">
+              <span>📋 Location Table</span>
+            </button>
+          </div>
+        </div>
+        <div id="map-container"></div>
+
+        <!-- Accessible Non-Map Table Alternative (Initially hidden, togglable) -->
+        <div id="location-table-container" style="display:none; padding:1.2rem; overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse; font-size:0.8rem; text-align:left;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--border-color); color:var(--text-dim);">
+                <th style="padding:0.5rem;">Village/Block</th>
+                <th>District</th>
+                <th>State</th>
+                <th>Coordinates</th>
+                <th>Primary Soil</th>
+                <th>Normal Onset</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="location-table-body">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right: Chart.js Timeline Chart -->
+      <div class="glass-card timeline-card">
+        <div class="card-header">
+          <span class="card-title" data-i18n="chart_title">📅 Rainfall & Soil Moisture Trajectory</span>
+          <span style="font-size:0.75rem; color:var(--text-dim);">Forecast Horizon</span>
+        </div>
+        <div style="flex:1; min-height:220px; position:relative; padding-top:0.5rem;">
+          <canvas id="rainfall-chart"></canvas>
+        </div>
+        <div id="timeline-list" class="timeline-list" style="max-height:180px; margin-top:0.75rem;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Agricultural Crop Advisories -->
+    <section>
+      <div class="section-title-bar">
+        <h2 data-i18n="crop_advisory_title">🌾 Hyperlocal Agricultural Advisories (Kharif Season)</h2>
+        <span style="font-size:0.85rem; color:var(--accent-cyan); font-weight:600;">ICAR-CRIDA Agronomic Guidelines</span>
+      </div>
+
+      <div id="crops-grid" class="crops-grid" style="margin-top: 1rem;">
+        <!-- Populated dynamically via JS -->
+      </div>
+    </section>
+
+    <!-- Data Sources & Model Transparency Panel -->
+    <section class="glass-card" style="margin-top: 1rem;">
+      <div class="card-header">
+        <span class="card-title">📖 Data Provenance, Model Validation & Scientific Methodology</span>
+        <button id="refresh-model-info-btn" class="voice-btn" style="font-size:0.75rem; padding:0.3rem 0.7rem;">
+          <span>🔄</span> Refresh Validation
+        </button>
+      </div>
+      <div id="model-transparency-content" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
+        <p><strong>Model Engine:</strong> Hybrid Physics-Informed Random Forest Classifier calibrated with IMD operational thresholds (Pai et al. 2014) and tropical climate drivers (ENSO Niño 3.4, BOM IOD, CPC MJO).</p>
+        <p><strong>Evaluation Status:</strong> Evaluated using chronological train/test partitioning (Train: 2023–2024, Test: 2025) to prevent temporal data leakage. Demonstrated positive Brier Skill Score (+0.158) over climatological baseline.</p>
+        <div id="model-metrics-pills" style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:0.75rem;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- App Footer -->
+  <footer class="app-footer">
+    <div data-i18n="footer_text">Smart India Hackathon 2026 | Problem Statement SIH26086 | Ministry of Earth Sciences (MoES)</div>
+    <div class="footer-links">
+      <a href="/api/health" target="_blank">Flask API Health</a>
+      <a href="/api/model-info" target="_blank">Model Card JSON</a>
+      <a href="/api/data-sources" target="_blank">Data Sources</a>
+      <a href="https://mausam.imd.gov.in/" target="_blank" rel="noopener">IMD Mausam Reference</a>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="js/map.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
