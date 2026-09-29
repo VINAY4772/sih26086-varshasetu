@@ -66,6 +66,12 @@ def test_model_info_synthetic_accuracy_disclaimer(client):
     assert "synthetic" in data["scientific_interpretation"].lower()
 
 def test_real_data_connectors_structure():
+    """
+    LIVE NETWORK INTEGRATION TEST:
+    Explicitly probes active NOAA CPC and NASA POWER public servers over HTTPS
+    to verify live internet connectivity and production endpoint availability.
+    (For offline unit tests with mocked responses, see tests/test_connectors_mocked.py)
+    """
     # Verify NOAA ONI connector schema
     noaa_res = fetch_noaa_cpc_oni(timeout_sec=3)
     assert isinstance(noaa_res, dict)

@@ -1,0 +1,82 @@
+{
+  "metadata": {
+    "source_name": "NASA POWER Agroclimatology Daily Archive",
+    "source_url": "https://power.larc.nasa.gov/api/temporal/daily/point",
+    "location_id": "ap_gnr_tenali",
+    "location_name": "Angalakuduru Village, Tenali Mandal",
+    "district": "Guntur",
+    "state": "Andhra Pradesh",
+    "latitude": 16.2437,
+    "longitude": 80.6400,
+    "temporal_range": {
+      "start": "2024-08-01",
+      "end": "2024-08-07"
+    },
+    "retrieval_timestamp": "2026-09-29T23:52:46.864412",
+    "is_synthetic": false,
+    "scientific_nature": "Areal gridded reanalysis & satellite assimilation estimate (0.5° x 0.5° resolution, ~50km) interpolated to point coordinate. NOT a direct in-situ village rain-gauge measurement.",
+    "parameters_description": {
+      "rainfall_mm": "PRECTOTCORR: Bias-corrected total precipitation (mm/day) from GEOS/MERRA-2 assimilation and satellite precipitation analyses.",
+      "temp_max_c": "T2M_MAX: Maximum 2-meter air temperature (°C) derived from GEOS atmospheric model analysis.",
+      "humidity_pct": "RH2M: Relative humidity at 2 meters (%) calculated from surface temperature, pressure, and vapor mixing ratio."
+    }
+  },
+  "records": [
+    {
+      "date": "2024-08-01",
+      "rainfall_mm": 3.88,
+      "temp_max_c": 31.0,
+      "humidity_pct": 84.3,
+      "missing_data_flag": false,
+      "data_source_id": "nasa_power_daily"
+    },
+    {
+      "date": "2024-08-02",
+      "rainfall_mm": 1.04,
+      "temp_max_c": 32.1,
+      "humidity_pct": 79.1,
+      "missing_data_flag": false,
+      "data_source_id": "nasa_power_daily"
+    },
+    {
+      "date": "2024-08-03",
+      "rainfall_mm": 0.66,
+      "temp_max_c": 34.0,
+      "humidity_pct": 76.0,
+      "missing_data_flag": false,
+      "data_source_id": "nasa_power_daily"
+    },
+    {
+      "date": "2024-08-04",
+      "rainfall_mm": 0.96,
+      "temp_max_c": 34.3,
+      "humidity_pct": 74.2,
+      "missing_data_flag": false,
+      "data_source_id": "nasa_power_daily"
+    },
+    {
+      "date": "2024-08-05",
+      "rainfall_mm": 1.55,
+      "temp_max_c": 33.0,
+      "humidity_pct": 75.3,
+      "missing_data_flag": false,
+      "data_source_id": "nasa_power_daily"
+    },
+    {
+      "date": "2024-08-06",
+      "rainfall_mm": 27.26,
+      "temp_max_c": 29.2,
+      "humidity_pct": 88.5,
+      "missing_data_flag": false,
+      "data_source_id": "nasa_power_daily"
+    },
+    {
+      "date": "2024-08-07",
+      "rainfall_mm": 8.90,
+      "temp_max_c": 29.1,
+      "humidity_pct": 85.9,
+      "missing_data_flag": false,
+      "data_source_id": "nasa_power_daily"
+    }
+  ]
+}
