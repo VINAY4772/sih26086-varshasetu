@@ -1,0 +1,173 @@
+{
+  "dataset_name": "Tenali Mandal Multi-Year Real Weather Archive (NASA POWER)",
+  "location": "Tenali Mandal, Guntur District, Andhra Pradesh (16.2437\u00b0N, 80.6400\u00b0E)",
+  "scientific_nature": "Areal gridded assimilation estimate (0.5\u00b0 x 0.5\u00b0 resolution, ~50km) from NASA GEOS-5 / MERRA-2. NOT an in-situ rain-gauge observation.",
+  "target_definition": "Break Spell in Next 7 Days: >= 5 dry days (< 2.5 mm/day) in window [T+1, T+7]",
+  "leakage_safeguard": "Forward 7-day target window truncated 7 days prior to split boundary; past features shifted >= 1 day.",
+  "all_year_evaluation": {
+    "splits": {
+      "train_period": "2015-01-01 to 2021-12-24",
+      "train_samples": 2547,
+      "train_prevalence": 0.671,
+      "val_period": "2022-01-01 to 2023-12-24",
+      "val_samples": 723,
+      "val_prevalence": 0.6404,
+      "test_period": "2024-01-01 to 2025-12-24",
+      "test_samples": 724,
+      "test_prevalence": 0.6202
+    },
+    "evaluations": {
+      "val_split": {
+        "samples": 723,
+        "event_prevalence": 0.6404,
+        "climatology_baseline": {
+          "base_rate": 0.671,
+          "brier_score": 0.2312,
+          "brier_skill_score": 0.0,
+          "roc_auc": 0.5
+        },
+        "persistence_baseline": {
+          "brier_score": 0.2946,
+          "brier_skill_score": -0.2741,
+          "roc_auc": 0.7059,
+          "f1_score": 0.7538,
+          "precision": 0.8109,
+          "recall": 0.7041
+        },
+        "production_rf_model": {
+          "brier_score": 0.2822,
+          "brier_skill_score": -0.2203,
+          "roc_auc": 0.5091,
+          "f1_score": 0.4557,
+          "precision": 0.6947,
+          "recall": 0.3391
+        },
+        "real_trained_rf_benchmark": {
+          "brier_score": 0.1613,
+          "brier_skill_score": 0.3025,
+          "roc_auc": 0.8247,
+          "f1_score": 0.827,
+          "precision": 0.8333,
+          "recall": 0.8207
+        }
+      },
+      "test_split": {
+        "samples": 724,
+        "event_prevalence": 0.6202,
+        "climatology_baseline": {
+          "base_rate": 0.671,
+          "brier_score": 0.2381,
+          "brier_skill_score": 0.0,
+          "roc_auc": 0.5
+        },
+        "persistence_baseline": {
+          "brier_score": 0.2735,
+          "brier_skill_score": -0.1484,
+          "roc_auc": 0.7365,
+          "f1_score": 0.7591,
+          "precision": 0.8365,
+          "recall": 0.6949
+        },
+        "production_rf_model": {
+          "brier_score": 0.2864,
+          "brier_skill_score": -0.2027,
+          "roc_auc": 0.4718,
+          "f1_score": 0.4358,
+          "precision": 0.6606,
+          "recall": 0.3252
+        },
+        "real_trained_rf_benchmark": {
+          "brier_score": 0.1431,
+          "brier_skill_score": 0.3991,
+          "roc_auc": 0.8625,
+          "f1_score": 0.8242,
+          "precision": 0.8454,
+          "recall": 0.804
+        }
+      }
+    }
+  },
+  "monsoon_season_evaluation": {
+    "splits": {
+      "train_period": "2015-01-01 to 2021-12-24",
+      "train_samples": 1071,
+      "train_prevalence": 0.324,
+      "val_period": "2022-01-01 to 2023-12-24",
+      "val_samples": 306,
+      "val_prevalence": 0.3235,
+      "test_period": "2024-01-01 to 2025-12-24",
+      "test_samples": 306,
+      "test_prevalence": 0.2941
+    },
+    "evaluations": {
+      "val_split": {
+        "samples": 306,
+        "event_prevalence": 0.3235,
+        "climatology_baseline": {
+          "base_rate": 0.324,
+          "brier_score": 0.2189,
+          "brier_skill_score": 0.0,
+          "roc_auc": 0.5
+        },
+        "persistence_baseline": {
+          "brier_score": 0.3007,
+          "brier_skill_score": -0.3737,
+          "roc_auc": 0.6302,
+          "f1_score": 0.4831,
+          "precision": 0.5443,
+          "recall": 0.4343
+        },
+        "production_rf_model": {
+          "brier_score": 0.2317,
+          "brier_skill_score": -0.0586,
+          "roc_auc": 0.6289,
+          "f1_score": 0.4216,
+          "precision": 0.4535,
+          "recall": 0.3939
+        },
+        "real_trained_rf_benchmark": {
+          "brier_score": 0.1802,
+          "brier_skill_score": 0.1766,
+          "roc_auc": 0.7378,
+          "f1_score": 0.4507,
+          "precision": 0.7442,
+          "recall": 0.3232
+        }
+      },
+      "test_split": {
+        "samples": 306,
+        "event_prevalence": 0.2941,
+        "climatology_baseline": {
+          "base_rate": 0.324,
+          "brier_score": 0.2085,
+          "brier_skill_score": 0.0,
+          "roc_auc": 0.5
+        },
+        "persistence_baseline": {
+          "brier_score": 0.3333,
+          "brier_skill_score": -0.5987,
+          "roc_auc": 0.5338,
+          "f1_score": 0.2714,
+          "precision": 0.38,
+          "recall": 0.2111
+        },
+        "production_rf_model": {
+          "brier_score": 0.2454,
+          "brier_skill_score": -0.1767,
+          "roc_auc": 0.5655,
+          "f1_score": 0.3409,
+          "precision": 0.3488,
+          "recall": 0.3333
+        },
+        "real_trained_rf_benchmark": {
+          "brier_score": 0.1954,
+          "brier_skill_score": 0.0628,
+          "roc_auc": 0.6001,
+          "f1_score": 0.2593,
+          "precision": 0.7778,
+          "recall": 0.1556
+        }
+      }
+    }
+  }
+}

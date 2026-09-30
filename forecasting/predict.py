@@ -115,19 +115,53 @@ class MonsoonForecastPipeline:
 
         if self.rf_model is not None and len(timeline) >= 3:
             try:
-                # Build feature vector from current conditions
+                # Build feature vector strictly from preceding observations (leak-free operational inference)
+                obs_list = [dict(r) for r in obs_rows] if obs_rows else []
+                if obs_list and scenario is None:
+                    # Operational forecasting mode: features derived strictly from historical observations
+                    rain_l1 = float(obs_list[0].get("rainfall_mm", 0.0))
+                    rain_l2 = float(obs_list[1].get("rainfall_mm", 0.0)) if len(obs_list) > 1 else 0.0
+                    rain_l3 = float(obs_list[2].get("rainfall_mm", 0.0)) if len(obs_list) > 2 else 0.0
+                    roll_7 = float(sum(r.get("rainfall_mm", 0.0) for r in obs_list[:7]))
+                    roll_14 = float(sum(r.get("rainfall_mm", 0.0) for r in obs_list[:min(14, len(obs_list))]))
+                    wet_7 = float(sum(1 for r in obs_list[:7] if r.get("rainfall_mm", 0.0) >= 2.5))
+                    # Calculate past dry streak
+                    c_dry = 0
+                    for r in obs_list:
+                        if r.get("rainfall_mm", 0.0) < 2.5:
+                            c_dry += 1
+                        else:
+                            break
+                    t_max = float(obs_list[0].get("temp_max_c", 32.0))
+                    rh = float(obs_list[0].get("humidity_pct", 70.0))
+                    olr = float(obs_list[0].get("olr_wm2", 195.0))
+                    wind_850 = float(obs_list[0].get("zonal_wind_850hpa_ms", 8.0))
+                else:
+                    # Scenario demonstration mode: user intentionally testing hypothetical scenario
+                    rain_l1 = timeline[0]["rainfall_mm"]
+                    rain_l2 = timeline[1]["rainfall_mm"] if len(timeline) > 1 else 0.0
+                    rain_l3 = timeline[2]["rainfall_mm"] if len(timeline) > 2 else 0.0
+                    roll_7 = sum(r["rainfall_mm"] for r in timeline[:7])
+                    roll_14 = sum(r["rainfall_mm"] for r in timeline[:min(14, len(timeline))])
+                    wet_7 = sum(1 for r in timeline[:7] if r["rainfall_mm"] >= 2.5)
+                    c_dry = break_res["max_consecutive_dry_days"]
+                    t_max = timeline[0]["temp_max_c"]
+                    rh = timeline[0]["humidity_pct"]
+                    olr = timeline[0]["olr_wm2"]
+                    wind_850 = timeline[0]["zonal_wind_850hpa_ms"]
+
                 cur_feat = {
-                    "rain_lag_1": timeline[0]["rainfall_mm"],
-                    "rain_lag_2": timeline[1]["rainfall_mm"] if len(timeline) > 1 else 0.0,
-                    "rain_lag_3": timeline[2]["rainfall_mm"] if len(timeline) > 2 else 0.0,
-                    "rain_roll_7d": sum(r["rainfall_mm"] for r in timeline[:7]),
-                    "rain_roll_14d": sum(r["rainfall_mm"] for r in timeline[:min(14, len(timeline))]),
-                    "wet_days_7d": sum(1 for r in timeline[:7] if r["rainfall_mm"] >= 2.5),
-                    "consecutive_dry_days": break_res["max_consecutive_dry_days"],
-                    "temp_max_c": timeline[0]["temp_max_c"],
-                    "humidity_pct": timeline[0]["humidity_pct"],
-                    "olr_wm2": timeline[0]["olr_wm2"],
-                    "zonal_wind_850hpa_ms": timeline[0]["zonal_wind_850hpa_ms"],
+                    "rain_lag_1": rain_l1,
+                    "rain_lag_2": rain_l2,
+                    "rain_lag_3": rain_l3,
+                    "rain_roll_7d": roll_7,
+                    "rain_roll_14d": roll_14,
+                    "wet_days_7d": wet_7,
+                    "consecutive_dry_days": c_dry,
+                    "temp_max_c": t_max,
+                    "humidity_pct": rh,
+                    "olr_wm2": olr,
+                    "zonal_wind_850hpa_ms": wind_850,
                     "enso_nino34": nino34_val,
                     "iod_dmi": iod_val,
                     "mjo_amplitude": mjo_amp_val,
