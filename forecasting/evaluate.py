@@ -18,7 +18,7 @@ def get_model_evaluation_report() -> Dict[str, Any]:
     with open(meta_path, "r", encoding="utf-8") as f:
         meta = json.load(f)
 
-    return {
+    report_dict = {
         "status": "VALIDATED",
         "validation_dataset": "SYNTHETIC DEMONSTRATION DATA (4,416 records, 2023-2025)",
         "real_world_validation": False,
@@ -41,6 +41,16 @@ def get_model_evaluation_report() -> Dict[str, Any]:
             "do NOT establish real-world forecasting accuracy against operational IMD ground observations."
         )
     }
+
+    real_rep_path = Path(__file__).resolve().parent.parent / "docs" / "real_data_evaluation_report.json"
+    if real_rep_path.exists():
+        try:
+            with open(real_rep_path, "r", encoding="utf-8") as f:
+                report_dict["historical_real_data_evaluation"] = json.load(f)
+        except Exception:
+            pass
+
+    return report_dict
 
 if __name__ == "__main__":
     report = get_model_evaluation_report()
