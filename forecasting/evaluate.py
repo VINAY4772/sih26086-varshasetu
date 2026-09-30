@@ -50,6 +50,14 @@ def get_model_evaluation_report() -> Dict[str, Any]:
         except Exception:
             pass
 
+    cand_meta_path = Config.MODELS_DIR / "break_model_rf_real_candidate_metadata.json"
+    if cand_meta_path.exists():
+        try:
+            with open(cand_meta_path, "r", encoding="utf-8") as f:
+                report_dict["real_candidate_model"] = json.load(f)
+        except Exception:
+            pass
+
     return report_dict
 
 if __name__ == "__main__":

@@ -120,3 +120,53 @@ def test_evaluation_report_json_artifact_and_scientific_provenance():
 
     # Climatology baseline Brier Score is positive
     assert test_eval["climatology_baseline"]["brier_score"] > 0.0
+
+
+def test_real_candidate_model_artifact_and_metadata():
+    """
+    Verifies that the separate real-data candidate model artifact exists,
+    contains exact 17 FEATURE_COLUMNS in identical order, and recorded positive BSS on validation.
+    """
+    import joblib
+    from forecasting.feature_engineering import FEATURE_COLUMNS
+
+    cand_model_path = Config.MODELS_DIR / "break_model_rf_real_candidate.joblib"
+    cand_meta_path = Config.MODELS_DIR / "break_model_rf_real_candidate_metadata.json"
+
+    assert cand_model_path.exists(), "Candidate model file does not exist!"
+    assert cand_meta_path.exists(), "Candidate metadata file does not exist!"
+
+    model = joblib.load(cand_model_path)
+    assert model.n_features_in_ == len(FEATURE_COLUMNS)
+    assert list(model.feature_names_in_) == FEATURE_COLUMNS
+
+    with open(cand_meta_path, "r", encoding="utf-8") as f:
+        meta = json.load(f)
+
+    assert meta["model_type"] == "RandomForestClassifier"
+    assert meta["validation_metrics"]["monsoon_season_jjaso"]["brier_skill_score"] > 0.0
+    assert meta["validation_metrics"]["all_year"]["brier_skill_score"] > 0.0
+
+
+def test_pipeline_candidate_model_integration_and_reversible_switch():
+    """
+    Verifies that the candidate model is 100% drop-in compatible with MonsoonForecastPipeline,
+    and reversible model switching works cleanly.
+    """
+    from forecasting.predict import MonsoonForecastPipeline
+
+    cand_model_path = Config.MODELS_DIR / "break_model_rf_real_candidate.joblib"
+
+    # Default pipeline uses production model
+    default_pipe = MonsoonForecastPipeline()
+    assert default_pipe.model_path.name == "break_model_rf.joblib"
+
+    # Candidate pipeline uses candidate model
+    cand_pipe = MonsoonForecastPipeline(model_path=cand_model_path)
+    assert cand_pipe.model_path.name == "break_model_rf_real_candidate.joblib"
+
+    fc = cand_pipe.generate_forecast("ap_gnr_tenali", horizon_days=14)
+    assert fc["model_artifact"] == "break_model_rf_real_candidate.joblib"
+    prob = fc["break_spell_outlook"]["probability"]
+    assert 0.0 <= prob <= 1.0
+

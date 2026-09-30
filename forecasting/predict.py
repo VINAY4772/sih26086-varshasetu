@@ -14,10 +14,12 @@ from forecasting.feature_engineering import engineer_features, FEATURE_COLUMNS
 
 class MonsoonForecastPipeline:
     def __init__(self, model_path: Optional[str] = None):
+        import os
         self.detector = MeteorologicalEventDetector()
-        self.model_path = model_path or (Config.MODELS_DIR / "break_model_rf.joblib")
+        active_model_name = os.environ.get("ACTIVE_MODEL_FILENAME", "break_model_rf.joblib")
+        self.model_path = Path(model_path) if model_path else (Config.MODELS_DIR / active_model_name)
         self.rf_model = None
-        if Path(self.model_path).exists():
+        if self.model_path.exists():
             try:
                 self.rf_model = joblib.load(self.model_path)
             except Exception as e:
@@ -244,6 +246,7 @@ class MonsoonForecastPipeline:
             "is_demonstration": True,
             "disclaimer": "DEMONSTRATION FORECAST — NOT FOR AGRICULTURAL DECISIONS",
             "accuracy_notice": "Evaluated on synthetic benchmark data; does not establish real-world forecast accuracy.",
+            "model_artifact": self.model_path.name,
             "data_provenance": "IMD Operational Criteria + NCMRWF Extended Range Principles + Synthetic Benchmark (SIH26086)",
             "climate_drivers": climate_res,
             "onset_outlook": {

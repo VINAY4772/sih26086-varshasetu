@@ -1,0 +1,76 @@
+{
+  "candidate_id": "break_model_rf_real_candidate_v1",
+  "model_type": "RandomForestClassifier",
+  "training_data_source": "NASA POWER Daily Agroclimatology (Tenali Mandal, AP)",
+  "spatial_resolution": "0.5\u00b0 x 0.5\u00b0 areal gridded assimilation (~50km), NOT an in-situ rain gauge",
+  "training_period": "2015-01-04 to 2021-12-24",
+  "validation_period": "2022-01-01 to 2023-12-24",
+  "exploratory_test_period": "2024-01-01 to 2025-12-24",
+  "train_samples": 2547,
+  "validation_samples_all_year": 723,
+  "validation_samples_monsoon_jjaso": 306,
+  "exploratory_test_samples_all_year": 724,
+  "exploratory_test_samples_monsoon_jjaso": 306,
+  "hyperparameters": {
+    "n_estimators": 100,
+    "max_depth": 6,
+    "min_samples_split": 25,
+    "random_state": 42
+  },
+  "feature_columns": [
+    "rain_lag_1",
+    "rain_lag_2",
+    "rain_lag_3",
+    "rain_roll_7d",
+    "rain_roll_14d",
+    "wet_days_7d",
+    "consecutive_dry_days",
+    "temp_max_c",
+    "humidity_pct",
+    "olr_wm2",
+    "zonal_wind_850hpa_ms",
+    "enso_nino34",
+    "iod_dmi",
+    "mjo_amplitude",
+    "day_of_year",
+    "latitude",
+    "elevation_m"
+  ],
+  "n_features": 17,
+  "target_definition": "Break Spell in Next 7 Days: >= 5 dry days (< 2.5 mm/day) in window [T+1, T+7]",
+  "validation_metrics": {
+    "all_year": {
+      "brier_score": 0.156,
+      "brier_climatology": 0.2312,
+      "brier_skill_score": 0.3252,
+      "roc_auc": 0.8314
+    },
+    "monsoon_season_jjaso": {
+      "brier_score": 0.1854,
+      "brier_climatology": 0.2189,
+      "brier_skill_score": 0.1529,
+      "roc_auc": 0.7272
+    }
+  },
+  "exploratory_test_metrics": {
+    "all_year": {
+      "brier_score": 0.141,
+      "brier_climatology": 0.2381,
+      "brier_skill_score": 0.408,
+      "roc_auc": 0.8672
+    },
+    "monsoon_season_jjaso": {
+      "brier_score": 0.2068,
+      "brier_climatology": 0.2085,
+      "brier_skill_score": 0.008,
+      "roc_auc": 0.5778
+    }
+  },
+  "scientific_notices": [
+    "Trained strictly on leak-free historical observations (2015-2021).",
+    "Model selection performed strictly on 2022-2023 validation set.",
+    "Demonstrates positive Brier skill relative to climatology on both validation and exploratory test sets.",
+    "Gridded satellite-reanalysis estimates (~50km) do not establish village-scale observational precision.",
+    "Official IMD monsoon onset cannot be predicted without upper-air zonal wind and satellite OLR."
+  ]
+}
