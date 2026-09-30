@@ -21,10 +21,10 @@ class MonsoonMapManager {
       maxZoom: 14
     }).setView([18.5, 78.5], 6);
 
-    // CartoDB Dark Matter tiles for clean high-contrast presentation
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://carto.com/">CARTO</a> | NCMRWF-MoES Open Data',
-      subdomains: 'abcd',
+    // Standard OpenStreetMap raster tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors | NCMRWF-MoES Open Data',
+      subdomains: 'abc',
       maxZoom: 19
     }).addTo(this.map);
 
