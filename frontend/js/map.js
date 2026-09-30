@@ -265,3 +265,7 @@ class MonsoonMapManager {
     else this.map.removeLayer(this.polygonsLayer);
   }
 }
+
+if (typeof window !== 'undefined') {
+  window.MonsoonMapManager = MonsoonMapManager;
+}

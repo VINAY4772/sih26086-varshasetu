@@ -31,7 +31,7 @@ class SIHMonsoonApp {
 
   async loadLocale(lang) {
     try {
-      const res = await fetch(`locales/${lang}.json`);
+      const res = await fetch(`${API_BASE}/locales/${lang}.json`);
       if (res.ok) {
         this.localeDictionary = await res.json();
       }
@@ -65,18 +65,18 @@ class SIHMonsoonApp {
     // Location Selector
     const locSelect = document.getElementById('location-select');
     if (locSelect) {
-      locSelect.addEventListener('change', (e) => {
+      locSelect.addEventListener('change', async (e) => {
         this.activeLocationId = e.target.value;
-        this.refreshDashboard();
+        await this.refreshDashboard();
       });
     }
 
     // Horizon Selector (7, 14, 21, 30 days)
     const horizonSelect = document.getElementById('horizon-select');
     if (horizonSelect) {
-      horizonSelect.addEventListener('change', (e) => {
+      horizonSelect.addEventListener('change', async (e) => {
         this.currentHorizon = parseInt(e.target.value, 10);
-        this.refreshDashboard();
+        await this.refreshDashboard();
       });
     }
 
@@ -197,6 +197,7 @@ class SIHMonsoonApp {
       statusPill.style.color = '#f43f5e';
       console.error('Dispatch error:', err);
     }
+  }
 
   initMap() {
     this.mapManager = new MonsoonMapManager('map-container', (locId, lat, lon) => {
@@ -697,6 +698,10 @@ class SIHMonsoonApp {
 
     window.speechSynthesis.speak(utterance);
   }
+}
+
+if (typeof window !== 'undefined') {
+  window.SIHMonsoonApp = SIHMonsoonApp;
 }
 
 // Global initialization
