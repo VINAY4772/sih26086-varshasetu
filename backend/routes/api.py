@@ -36,7 +36,9 @@ def health_check():
 
     return jsonify({
         "status": "healthy" if db_connected else "degraded",
-        "service": "SIH26086 Flask Backend",
+        "service": "VarshaSetu Flask Backend (SIH26086)",
+        "product_name": "VarshaSetu",
+        "tagline": "Bridging Climate Intelligence with Every Farmer",
         "database_connected": db_connected,
         "version": "1.0.0",
         "timestamp": datetime.datetime.now().isoformat()
@@ -294,31 +296,113 @@ def upload_data():
 def simulate_notification():
     """
     Sandbox notification simulation endpoint for SMS/WhatsApp.
+    Supports Farmer and Agricultural Extension Officer recipient types.
     Clearly records simulated delivery without claiming real transmission.
     """
     payload = request.get_json(silent=True) or {}
     phone = payload.get("phone", "+91-98XXXXXXXX")
-    channel = payload.get("channel", "sms")
-    message = payload.get("message", "SIH26086 Agro-Met Advisory Alert")
+    channel = payload.get("channel", "sms").lower()
+    if channel not in ["sms", "whatsapp"]:
+        channel = "sms"
+    recipient_type = payload.get("recipient_type", "farmer").lower()
+    if recipient_type not in ["farmer", "officer"]:
+        recipient_type = "farmer"
+
+    location_name = payload.get("location_name", "Local Catchment")
+    crop_name = payload.get("crop_name", "Kharif Crops")
+    horizon = payload.get("horizon_days", 14)
+    risk_condition = payload.get("risk_condition", "Monsoon Circulation Evaluation")
+    action = payload.get("action", "Follow advisory guidelines")
+    raw_message = payload.get("message")
+
+    # Construct contextual, tailored bulletin based on recipient type if not already fully formatted
+    if raw_message and ("[" in raw_message and "]" in raw_message and len(raw_message) > 40):
+        final_message = raw_message
+    else:
+        if recipient_type == "officer":
+            final_message = (
+                f"[VarshaSetu AGRI-OFFICER BULLETIN]\n"
+                f"Recipient: Agricultural Extension Officer\n"
+                f"Area / Block: {location_name}\n"
+                f"Forecast Horizon: {horizon}-day outlook\n"
+                f"Monsoon Risk: {risk_condition}\n"
+                f"Affected Crop(s): {crop_name}\n"
+                f"Mandated Directive: {action}\n"
+                f"Channel: {channel.upper()} | Delivery: SIMULATED DELIVERY"
+            )
+        else:
+            final_message = (
+                f"[VarshaSetu Farmer Advisory]\n"
+                f"Recipient: Farmer\n"
+                f"Location: {location_name}\n"
+                f"Crop: {crop_name}\n"
+                f"Forecast Horizon: {horizon}-day outlook\n"
+                f"Condition: {risk_condition}\n"
+                f"Recommended Action: {action}\n"
+                f"Channel: {channel.upper()} | Delivery: SIMULATED DELIVERY"
+            )
 
     # Mask phone number for privacy
-    masked = phone[:6] + "XXXX" if len(phone) >= 10 else "ANONYMIZED"
+    clean_digits = "".join(ch for ch in phone if ch.isdigit())
+    if len(clean_digits) >= 10:
+        masked = f"+91-{clean_digits[-10:-4]}XXXX"
+    else:
+        masked = phone[:6] + "XXXX" if len(phone) >= 6 else "ANONYMIZED"
 
     conn = get_db_connection()
-    conn.execute(
-        """
-        INSERT INTO notification_logs (recipient_mask, channel, message_body, status, simulated)
-        VALUES (?, ?, ?, 'SIMULATED_SUCCESS', 1)
-        """,
-        (masked, channel, message)
-    )
+    try:
+        conn.execute(
+            """
+            INSERT INTO notification_logs (recipient_type, recipient_mask, channel, message_body, status, simulated)
+            VALUES (?, ?, ?, ?, 'DELIVERED (SIMULATED)', 1)
+            """,
+            (recipient_type, masked, channel, final_message)
+        )
+    except Exception:
+        # Fallback if recipient_type column is missing in legacy table
+        conn.execute(
+            """
+            INSERT INTO notification_logs (recipient_mask, channel, message_body, status, simulated)
+            VALUES (?, ?, ?, 'DELIVERED (SIMULATED)', 1)
+            """,
+            (masked, channel, final_message)
+        )
     conn.commit()
     conn.close()
 
     return jsonify({
         "status": "SIMULATED_SUCCESS",
+        "delivery_status": "DELIVERED (SIMULATED)",
         "notice": "SIMULATION ONLY: No actual SMS or WhatsApp was dispatched.",
+        "recipient_type": recipient_type,
         "channel": channel,
         "recipient_mask": masked,
+        "message": final_message,
         "timestamp": datetime.datetime.now().isoformat()
     })
+
+@api_bp.route("/notifications/history", methods=["GET"])
+def get_notification_history():
+    """
+    Returns recent simulated SMS/WhatsApp transmissions for audit verification.
+    """
+    conn = get_db_connection()
+    try:
+        rows = conn.execute(
+            """
+            SELECT id, recipient_type, recipient_mask, channel, message_body, status, simulated, created_at
+            FROM notification_logs
+            ORDER BY id DESC LIMIT 15
+            """
+        ).fetchall()
+    except Exception:
+        rows = conn.execute(
+            """
+            SELECT id, 'farmer' as recipient_type, recipient_mask, channel, message_body, status, simulated, created_at
+            FROM notification_logs
+            ORDER BY id DESC LIMIT 15
+            """
+        ).fetchall()
+    conn.close()
+
+    return jsonify([dict(r) for r in rows])

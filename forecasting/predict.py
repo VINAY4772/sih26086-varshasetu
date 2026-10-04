@@ -216,11 +216,31 @@ class MonsoonForecastPipeline:
         }
         h_info = horizon_uncertainty_bands.get(horizon_days, horizon_uncertainty_bands[14])
 
-        # 5. Rainfall Anomaly Outlook
+        # 5. Spell Duration Analysis (Active & Break Spells)
+        spell_analysis = self.detector.analyze_spells_duration(timeline)
+
+        # Expected onset window based on physical criteria
+        if onset_res["status"] == "ONSET_DECLARED":
+            expected_onset_window = "Within 3–5 Days (Imminent)"
+        elif onset_res.get("is_false_alarm"):
+            expected_onset_window = "Delayed (Pre-monsoon only; synoptic criteria unmet)"
+        elif onset_res["status"] == "INSUFFICIENT_OBSERVATION_DAYS":
+            expected_onset_window = "Insufficient data for threshold assessment"
+        else:
+            expected_onset_window = f"Normal Climatological Window: {location_meta['normal_onset_date']}"
+
+        # Active spell probability
+        active_prob = round(max(0.05, min(0.95, 1.0 - break_prob)), 3)
+        active_status = (
+            "ACTIVE" if (spell_analysis["active_spell"]["expected_duration_days"] or 0) >= 3
+            else ("MODERATE" if (spell_analysis["active_spell"]["expected_duration_days"] or 0) >= 1 else "SUBDUED")
+        )
+
+        # 6. Rainfall Anomaly Outlook
         total_fc_rain = sum(r["rainfall_mm"] for r in timeline)
         anomaly_res = self.detector.compute_rainfall_anomaly(total_fc_rain, period_days=horizon_days)
 
-        # 6. Heavy Rainfall Risk
+        # 7. Heavy Rainfall Risk
         heavy_rain_res = self.detector.evaluate_heavy_rainfall_risk([r["rainfall_mm"] for r in timeline])
 
         # Record forecast in DB for audit trail
@@ -252,14 +272,34 @@ class MonsoonForecastPipeline:
             "onset_outlook": {
                 "status": onset_res["status"],
                 "confidence_score": onset_res["confidence_score"],
+                "onset_probability_pct": round(onset_res["confidence_score"] * 100, 1),
+                "threshold_rule": onset_res.get("threshold_rule", "IMD-referenced monsoon onset criteria adapted within the VarshaSetu hyperlocal forecasting framework: 2 days rain ≥2.5mm + 850hPa wind ≥7.7m/s + OLR ≤200W/m²"),
+                "threshold_status": onset_res.get("threshold_status", "NOT MET"),
+                "threshold_config": onset_res.get("threshold_config", {}),
+                "expected_onset_window": expected_onset_window,
                 "is_false_alarm": onset_res.get("is_false_alarm", False),
                 "normal_onset_date": location_meta["normal_onset_date"],
-                "reasons": onset_res["reasons"]
+                "reasons": onset_res["reasons"],
+                "methodology_note": "IMD's operational onset criteria are defined for declaration of southwest monsoon onset over Kerala and its advance. VarshaSetu uses these meteorological indicators as reference features within its hyperlocal probabilistic assessment; this dashboard does not represent an official IMD onset declaration."
+            },
+            "active_monsoon_outlook": {
+                "expected_active_duration_days": spell_analysis["active_spell"]["expected_duration_days"],
+                "duration_display": spell_analysis["active_spell"]["duration_display"],
+                "expected_window": spell_analysis["active_spell"]["window"],
+                "probability": active_prob,
+                "probability_pct": round(active_prob * 100, 1),
+                "status": active_status,
+                "has_duration_estimate": spell_analysis["active_spell"]["has_estimate"]
             },
             "break_spell_outlook": {
                 "risk_level": break_res["risk_level"],
                 "probability": break_prob,
+                "probability_pct": round(break_prob * 100, 1),
                 "projected_consecutive_dry_days": break_res["max_consecutive_dry_days"],
+                "expected_break_duration_days": spell_analysis["break_spell"]["expected_duration_days"],
+                "duration_display": spell_analysis["break_spell"]["duration_display"],
+                "expected_window": spell_analysis["break_spell"]["window"],
+                "has_duration_estimate": spell_analysis["break_spell"]["has_estimate"],
                 "is_break_active": break_res["is_break_active"],
                 "uncertainty_interval": [
                     round(max(0.0, break_prob - (h_info["uncertainty_pct"] / 100.0)), 2),

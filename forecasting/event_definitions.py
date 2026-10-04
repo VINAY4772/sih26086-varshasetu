@@ -21,7 +21,7 @@ import numpy as np
 
 @dataclass
 class EventThresholdConfig:
-    # 1. Onset Criteria (IMD Operational Standard)
+    # 1. Onset Criteria (IMD-referenced monsoon onset criteria adapted within the VarshaSetu hyperlocal forecasting framework)
     onset_min_daily_rainfall_mm: float = 2.5
     onset_consecutive_days_required: int = 2
     onset_zonal_wind_850hpa_min_ms: float = 7.7  # ~15 knots
@@ -62,11 +62,27 @@ class MeteorologicalEventDetector:
         """
         Evaluates IMD multi-parameter criteria for monsoon onset.
         """
+        threshold_rule = (
+            f"IMD-referenced monsoon onset criteria adapted within the VarshaSetu hyperlocal forecasting framework: "
+            f"Consecutive {self.config.onset_consecutive_days_required} days daily rain "
+            f"≥{self.config.onset_min_daily_rainfall_mm}mm + 850hPa zonal westerly wind ≥{self.config.onset_zonal_wind_850hpa_min_ms} m/s "
+            f"(~15 kts) + OLR ≤{self.config.onset_olr_max_threshold_wm2} W/m²"
+        )
+        threshold_config = {
+            "min_daily_rainfall_mm": self.config.onset_min_daily_rainfall_mm,
+            "consecutive_days_required": self.config.onset_consecutive_days_required,
+            "zonal_wind_min_ms": self.config.onset_zonal_wind_850hpa_min_ms,
+            "olr_max_wm2": self.config.onset_olr_max_threshold_wm2
+        }
+
         if len(recent_daily_rainfall) < self.config.onset_consecutive_days_required:
             return {
                 "onset_detected": False,
                 "confidence_score": 0.0,
                 "status": "INSUFFICIENT_OBSERVATION_DAYS",
+                "threshold_rule": threshold_rule,
+                "threshold_status": "INSUFFICIENT DATA",
+                "threshold_config": threshold_config,
                 "reasons": ["Fewer observation days than required for consecutive verification."]
             }
 
@@ -94,6 +110,9 @@ class MeteorologicalEventDetector:
                 "onset_detected": True,
                 "confidence_score": 0.92,
                 "status": "ONSET_DECLARED",
+                "threshold_rule": threshold_rule,
+                "threshold_status": "MET",
+                "threshold_config": threshold_config,
                 "is_false_alarm": False,
                 "reasons": ["Consecutive 48-hr rainfall >= 2.5mm satisfied with supporting synoptic wind and low OLR."]
             }
@@ -102,6 +121,9 @@ class MeteorologicalEventDetector:
                 "onset_detected": False,
                 "confidence_score": 0.45,
                 "status": "FALSE_ONSET_WARNING",
+                "threshold_rule": threshold_rule,
+                "threshold_status": "NOT MET",
+                "threshold_config": threshold_config,
                 "is_false_alarm": True,
                 "reasons": reasons
             }
@@ -110,9 +132,125 @@ class MeteorologicalEventDetector:
                 "onset_detected": False,
                 "confidence_score": 0.60,
                 "status": "PRE_MONSOON_OR_PENDING",
+                "threshold_rule": threshold_rule,
+                "threshold_status": "NOT MET",
+                "threshold_config": threshold_config,
                 "is_false_alarm": False,
                 "reasons": ["Rainfall did not meet consecutive 48-hour operational threshold."]
             }
+
+    def analyze_spells_duration(self, timeline: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """
+        Derives active wet spells and break/dry spells duration and start/end windows
+        from the daily forecast horizon timeline.
+        Follows IMD criteria:
+        - Dry day: daily rainfall <= break_spell_max_rainfall_mm_day (2.0 mm)
+        - Wet / Active day: daily rainfall >= 2.5 mm (and >= 10.0 mm active threshold)
+        """
+        if not timeline:
+            return {
+                "active_spell": {
+                    "expected_duration_days": None,
+                    "duration_display": "Duration estimate unavailable",
+                    "window": "Duration estimate unavailable",
+                    "start_day": None,
+                    "end_day": None,
+                    "has_estimate": False
+                },
+                "break_spell": {
+                    "expected_duration_days": None,
+                    "duration_display": "Duration estimate unavailable",
+                    "window": "Duration estimate unavailable",
+                    "start_day": None,
+                    "end_day": None,
+                    "has_estimate": False
+                }
+            }
+
+        # Scan for dry streaks
+        dry_streaks = []
+        current_dry = []
+        for item in timeline:
+            r = item.get("rainfall_mm", 0.0)
+            day_num = item.get("day_offset", 1)
+            date_str = item.get("date", "")
+            if r <= self.config.break_spell_max_rainfall_mm_day:
+                current_dry.append({"day": day_num, "date": date_str, "rain": r})
+            else:
+                if current_dry:
+                    dry_streaks.append(current_dry)
+                    current_dry = []
+        if current_dry:
+            dry_streaks.append(current_dry)
+
+        # Scan for wet streaks (>= 2.5 mm)
+        wet_streaks = []
+        current_wet = []
+        for item in timeline:
+            r = item.get("rainfall_mm", 0.0)
+            day_num = item.get("day_offset", 1)
+            date_str = item.get("date", "")
+            if r >= self.config.onset_min_daily_rainfall_mm:
+                current_wet.append({"day": day_num, "date": date_str, "rain": r})
+            else:
+                if current_wet:
+                    wet_streaks.append(current_wet)
+                    current_wet = []
+        if current_wet:
+            wet_streaks.append(current_wet)
+
+        # Longest dry streak
+        if dry_streaks:
+            longest_dry = max(dry_streaks, key=len)
+            dry_duration = len(longest_dry)
+            dry_start = longest_dry[0]["day"]
+            dry_end = longest_dry[-1]["day"]
+            dry_window = f"Day {dry_start}–Day {dry_end}" if dry_start != dry_end else f"Day {dry_start}"
+            dry_disp = f"{dry_duration} days"
+            has_dry = True
+        else:
+            dry_duration = 0
+            dry_window = "No dry spell projected"
+            dry_disp = "0 days (No dry spell)"
+            dry_start = None
+            dry_end = None
+            has_dry = True
+
+        # Longest wet streak
+        if wet_streaks:
+            longest_wet = max(wet_streaks, key=len)
+            wet_duration = len(longest_wet)
+            wet_start = longest_wet[0]["day"]
+            wet_end = longest_wet[-1]["day"]
+            wet_window = f"Day {wet_start}–Day {wet_end}" if wet_start != wet_end else f"Day {wet_start}"
+            wet_disp = f"{wet_duration} days"
+            has_wet = True
+        else:
+            wet_duration = 0
+            wet_window = "No active spell projected"
+            wet_disp = "0 days (Subdued monsoon)"
+            wet_start = None
+            wet_end = None
+            has_wet = True
+
+        return {
+            "active_spell": {
+                "expected_duration_days": wet_duration,
+                "duration_display": wet_disp,
+                "window": wet_window,
+                "start_day": wet_start,
+                "end_day": wet_end,
+                "has_estimate": has_wet
+            },
+            "break_spell": {
+                "expected_duration_days": dry_duration,
+                "duration_display": dry_disp,
+                "window": dry_window,
+                "start_day": dry_start,
+                "end_day": dry_end,
+                "has_estimate": has_dry
+            }
+        }
 
     def detect_break_spells(self, daily_rainfall: List[float]) -> Dict[str, Any]:
         """

@@ -14,5 +14,8 @@ class Config:
     MODELS_DIR = BASE_DIR / "models"
     FRONTEND_DIR = BASE_DIR / "frontend"
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16 MB maximum file upload limit
-    SUPPORTED_LANGUAGES = ["en", "te"]
+    SUPPORTED_LANGUAGES = ["en", "te", "hi", "ta", "kn", "ur", "ml"]
     DEFAULT_LANGUAGE = "en"
+    PRODUCT_NAME = "VarshaSetu"
+    PRODUCT_TAGLINE = "Bridging Climate Intelligence with Every Farmer"
+    PRODUCT_SUBTITLE = "Hyperlocal Monsoon Onset, Break & Agricultural Advisory System"

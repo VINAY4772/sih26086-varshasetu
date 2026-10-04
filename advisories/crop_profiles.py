@@ -11,6 +11,11 @@ CROP_PROFILES: Dict[str, Dict[str, Any]] = {
         "crop_code": "paddy",
         "name_en": "Paddy / Rice",
         "name_te": "వరి (Paddy)",
+        "name_hi": "धान / चावल (Paddy)",
+        "name_ta": "நெல் / அரிசி (Paddy)",
+        "name_kn": "ಭತ್ತ (Paddy)",
+        "name_ur": "دھان / چاول (Paddy)",
+        "name_ml": "നെല്ല് (Paddy)",
         "season": "Kharif",
         "min_sowing_rainfall_mm": 50.0,  # 3-4 day cumulative wetting for nursery bed
         "optimal_soil_moisture_pct": 70.0,
@@ -30,6 +35,11 @@ CROP_PROFILES: Dict[str, Dict[str, Any]] = {
         "crop_code": "cotton",
         "name_en": "Cotton",
         "name_te": "పత్తి (Cotton)",
+        "name_hi": "कपास (Cotton)",
+        "name_ta": "பருத்தி (Cotton)",
+        "name_kn": "ಹತ್ತಿ (Cotton)",
+        "name_ur": "کپاس (Cotton)",
+        "name_ml": "പരുത്തി (Cotton)",
         "season": "Kharif",
         "min_sowing_rainfall_mm": 50.0,  # 50-60mm deep soil wetting to prevent seed scalding
         "optimal_soil_moisture_pct": 60.0,
@@ -48,6 +58,11 @@ CROP_PROFILES: Dict[str, Dict[str, Any]] = {
         "crop_code": "soybean",
         "name_en": "Soybean",
         "name_te": "సోయాబీన్ (Soybean)",
+        "name_hi": "सोयाबीन (Soybean)",
+        "name_ta": "சோயாபீன் (Soybean)",
+        "name_kn": "ಸೋಯಾಬೀನ್ (Soybean)",
+        "name_ur": "سویا بین (Soybean)",
+        "name_ml": "സോയാബീൻ (Soybean)",
         "season": "Kharif",
         "min_sowing_rainfall_mm": 45.0,
         "optimal_soil_moisture_pct": 65.0,
@@ -66,6 +81,11 @@ CROP_PROFILES: Dict[str, Dict[str, Any]] = {
         "crop_code": "groundnut",
         "name_en": "Groundnut",
         "name_te": "వేరుశనగ (Groundnut)",
+        "name_hi": "मूंगफली (Groundnut)",
+        "name_ta": "நிலக்கடலை (Groundnut)",
+        "name_kn": "ಕಡಲೆಕಾಯಿ (Groundnut)",
+        "name_ur": "مونگ پھلی (Groundnut)",
+        "name_ml": "നിലക്കടല (Groundnut)",
         "season": "Kharif",
         "min_sowing_rainfall_mm": 40.0,
         "optimal_soil_moisture_pct": 55.0,
@@ -83,6 +103,11 @@ CROP_PROFILES: Dict[str, Dict[str, Any]] = {
         "crop_code": "maize",
         "name_en": "Maize / Corn",
         "name_te": "మొక్కజొన్న (Maize)",
+        "name_hi": "मक्का (Maize)",
+        "name_ta": "மக்காச்சோளம் (Maize)",
+        "name_kn": "ಮೆಕ್ಕೆಜೋಳ (Maize)",
+        "name_ur": "مکئی (Maize)",
+        "name_ml": "ചോളം (Maize)",
         "season": "Kharif",
         "min_sowing_rainfall_mm": 40.0,
         "optimal_soil_moisture_pct": 60.0,
@@ -100,6 +125,11 @@ CROP_PROFILES: Dict[str, Dict[str, Any]] = {
         "crop_code": "pulses",
         "name_en": "Redgram / Pigeonpea",
         "name_te": "కంది (Redgram)",
+        "name_hi": "अरहर / तूर (Redgram)",
+        "name_ta": "துவரை (Redgram)",
+        "name_kn": "ತೊಗರಿ (Redgram)",
+        "name_ur": "ارہر / دال تور (Redgram)",
+        "name_ml": "തുവര (Redgram)",
         "season": "Kharif",
         "min_sowing_rainfall_mm": 35.0,
         "optimal_soil_moisture_pct": 50.0,
@@ -114,3 +144,8 @@ CROP_PROFILES: Dict[str, Dict[str, Any]] = {
         "authority_source": "ICAR-Indian Institute of Pulses Research (IIPR) & PJTSAU"
     }
 }
+
+def get_crop_display_name(crop_code: str, language: str = "en") -> str:
+    profile = CROP_PROFILES.get(crop_code, {})
+    key = f"name_{language}"
+    return profile.get(key, profile.get("name_en", crop_code.capitalize()))

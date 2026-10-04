@@ -3,27 +3,29 @@ from pathlib import Path
 from config import Config
 
 def test_locale_files_exist_and_valid():
-    en_path = Config.FRONTEND_DIR / "locales" / "en.json"
-    te_path = Config.FRONTEND_DIR / "locales" / "te.json"
+    langs = ["en", "te", "hi", "ta", "kn", "ur", "ml"]
+    data_by_lang = {}
 
-    assert en_path.exists(), "locales/en.json missing"
-    assert te_path.exists(), "locales/te.json missing"
+    for lang in langs:
+        p = Config.FRONTEND_DIR / "locales" / f"{lang}.json"
+        assert p.exists(), f"locales/{lang}.json missing"
+        with open(p, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            assert len(data) >= 50, f"Too few keys in {lang}.json"
+            data_by_lang[lang] = data
 
-    with open(en_path, "r", encoding="utf-8") as f:
-        en_data = json.load(f)
+    # Verify key symmetry across all 7 languages
+    base_keys = set(data_by_lang["en"].keys())
+    for lang in langs:
+        assert set(data_by_lang[lang].keys()) == base_keys, f"Key mismatch in {lang}.json"
 
-    with open(te_path, "r", encoding="utf-8") as f:
-        te_data = json.load(f)
-
-    assert len(en_data) >= 30
-    assert len(te_data) >= 30
-
-    # Test key symmetry
-    common_keys = set(en_data.keys()).intersection(set(te_data.keys()))
-    assert len(common_keys) == len(en_data.keys()), "Mismatch in translation keys"
-
-    # Verify Telugu characters exist in Telugu strings
-    assert any("\u0c00" <= char <= "\u0c7f" for char in te_data["app_title"])
+    # Verify script characters in respective languages
+    assert any("\u0c00" <= c <= "\u0c7f" for c in data_by_lang["te"]["app_title"]), "Telugu characters missing"
+    assert any("\u0900" <= c <= "\u097f" for c in data_by_lang["hi"]["app_title"]), "Devanagari characters missing"
+    assert any("\u0b80" <= c <= "\u0bff" for c in data_by_lang["ta"]["app_title"]), "Tamil characters missing"
+    assert any("\u0c80" <= c <= "\u0cff" for c in data_by_lang["kn"]["app_title"]), "Kannada characters missing"
+    assert any("\u0600" <= c <= "\u06ff" for c in data_by_lang["ur"]["app_title"]), "Arabic/Urdu characters missing"
+    assert any("\u0d00" <= c <= "\u0d7f" for c in data_by_lang["ml"]["app_title"]), "Malayalam characters missing"
 
 def test_map_basemap_tile_configuration():
     map_js_path = Config.FRONTEND_DIR / "js" / "map.js"

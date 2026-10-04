@@ -109,3 +109,45 @@ def test_api_notification_simulate(client):
     data = res.get_json()
     assert data["status"] == "SIMULATED_SUCCESS"
     assert "XXXX" in data["recipient_mask"]
+
+def test_api_locations_marker_coordinates_and_schema(client):
+    res = client.get("/api/locations")
+    assert res.status_code == 200
+    locations = res.get_json()
+    assert isinstance(locations, list)
+    assert len(locations) >= 8
+
+    required_keys = {"id", "name", "block_or_mandal", "district", "state", "latitude", "longitude"}
+    for loc in locations:
+        assert required_keys.issubset(loc.keys()), f"Missing keys in location: {loc}"
+        lat = loc["latitude"]
+        lon = loc["longitude"]
+        assert isinstance(lat, (int, float)), f"Invalid latitude type in {loc['id']}"
+        assert isinstance(lon, (int, float)), f"Invalid longitude type in {loc['id']}"
+        # Indian subcontinent bounds
+        assert 8.0 <= lat <= 37.0, f"Latitude {lat} out of range for {loc['id']}"
+        assert 68.0 <= lon <= 98.0, f"Longitude {lon} out of range for {loc['id']}"
+
+def test_api_risk_map_layers_schema(client):
+    res = client.get("/api/risk-map")
+    assert res.status_code == 200
+    data = res.get_json()
+    assert "isochrones" in data
+    assert "radar_grid" in data
+    assert "block_polygons" in data
+    assert "locations" in data
+
+    # Verify isochrones GeoJSON features
+    isochrones = data["isochrones"]
+    assert isochrones.get("type") == "FeatureCollection"
+    assert len(isochrones.get("features", [])) > 0
+
+    # Verify radar grid points
+    radar_grid = data["radar_grid"]
+    assert isinstance(radar_grid, list)
+    assert len(radar_grid) > 0
+    for pt in radar_grid:
+        assert "lat" in pt and "lon" in pt and "intensity_mm_hr" in pt
+        assert 8.0 <= pt["lat"] <= 37.0
+        assert 68.0 <= pt["lon"] <= 98.0
+        assert pt["intensity_mm_hr"] >= 0.0

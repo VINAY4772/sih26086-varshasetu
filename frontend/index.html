@@ -1,15 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SIH26086: Hyperlocal Monsoon Onset & Break Prediction System</title>
-  <meta name="description" content="Operational Block & Village scale monsoon onset, break spell prediction, and agricultural advisories for Ministry of Earth Sciences (MoES).">
+  <title data-i18n="app_title">VarshaSetu: Hyperlocal Monsoon Onset & Break Prediction System</title>
+  <meta name="description" content="VarshaSetu: Bridging Climate Intelligence with Every Farmer. Hyperlocal block & village scale monsoon onset, break spell prediction, and agricultural advisories for Ministry of Earth Sciences (MoES).">
 
-  <!-- Google Fonts: Outfit & Inter -->
+  <!-- Open Graph & Social Metadata -->
+  <meta property="og:title" content="VarshaSetu - Bridging Climate Intelligence with Every Farmer">
+  <meta property="og:description" content="Hyperlocal Monsoon Onset, Break & Agricultural Advisory System for Ministry of Earth Sciences (MoES).">
+  <meta property="og:type" content="website">
+
+  <!-- Google Fonts covering Latin and all Indian regional scripts + Arabic/Urdu -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Telugu:wght@400;600;700&family=Noto+Sans+Tamil:wght@400;600;700&family=Noto+Sans+Kannada:wght@400;600;700&family=Noto+Sans+Malayalam:wght@400;600;700&family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
 
   <!-- Leaflet GIS CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
@@ -25,16 +30,17 @@
   <!-- Top App Navigation -->
   <header class="app-header">
     <div class="brand-section">
-      <div class="brand-logo-icon">🌧️</div>
+      <div class="brand-logo-icon" aria-hidden="true">🌧️</div>
       <div class="brand-text">
-        <h1 data-i18n="app_title">SIH26086: Hyperlocal Monsoon Prediction</h1>
-        <div class="brand-subtitle" data-i18n="ministry_subtitle">Ministry of Earth Sciences (MoES) • Block & Village Scale</div>
+        <h1 class="brand-name"><span data-i18n="app_name">VarshaSetu</span></h1>
+        <div class="brand-tagline" data-i18n="tagline">Bridging Climate Intelligence with Every Farmer</div>
+        <div class="brand-subtitle" data-i18n="technical_subtitle">Hyperlocal Monsoon Onset, Break & Agricultural Advisory System</div>
       </div>
     </div>
 
     <div class="nav-controls">
       <!-- Demonstration Scenario Pills -->
-      <div class="scenario-selector" title="Demonstration Scenario Simulator">
+      <div class="scenario-selector" data-i18n-attr="title:scenario_selector_title">
         <button class="scenario-btn active" data-scenario="default" id="sim-normal" data-i18n="scenario_normal">Normal Monsoon</button>
         <button class="scenario-btn" data-scenario="onset_active" id="sim-active" data-i18n="scenario_active">Active Onset Surge</button>
         <button class="scenario-btn" data-scenario="break_spell" id="sim-break" data-i18n="scenario_break">Severe Break Spell</button>
@@ -43,30 +49,36 @@
 
       <!-- Forecast Horizon Selector -->
       <div class="select-wrapper">
-        <select id="horizon-select" class="control-select" aria-label="Forecast Horizon">
+        <select id="horizon-select" class="control-select" data-i18n-attr="aria-label:select_horizon">
           <option value="7" data-i18n="horizon_7d">7 Days Outlook</option>
           <option value="14" selected data-i18n="horizon_14d">14 Days Outlook</option>
           <option value="21" data-i18n="horizon_21d">21 Days Outlook</option>
           <option value="30" data-i18n="horizon_30d">30 Days Outlook</option>
         </select>
-        <span class="select-arrow">▼</span>
+        <span class="select-arrow" aria-hidden="true">▼</span>
       </div>
 
       <!-- Village / Block Dropdown -->
       <div class="select-wrapper">
-        <select id="location-select" class="control-select" aria-label="Select Village or Block">
+        <select id="location-select" class="control-select" data-i18n-attr="aria-label:select_location">
           <!-- Populated dynamically via JS -->
         </select>
-        <span class="select-arrow">▼</span>
+        <span class="select-arrow" aria-hidden="true">▼</span>
       </div>
 
-      <!-- English & Telugu Language Selector -->
-      <div class="select-wrapper">
-        <select id="lang-select" class="control-select" aria-label="Select Language">
-          <option value="en">English (EN)</option>
-          <option value="te">తెలుగు (Telugu)</option>
+      <!-- 7 Scheduled Languages Selector -->
+      <div class="select-wrapper language-wrapper">
+        <span class="lang-icon" aria-hidden="true">🌐</span>
+        <select id="lang-select" class="control-select" data-i18n-attr="aria-label:select_language">
+          <option value="en">English</option>
+          <option value="te">తెలుగు</option>
+          <option value="hi">हिन्दी</option>
+          <option value="ta">தமிழ்</option>
+          <option value="kn">ಕನ್ನಡ</option>
+          <option value="ur">اردو</option>
+          <option value="ml">മലയാളം</option>
         </select>
-        <span class="select-arrow">▼</span>
+        <span class="select-arrow" aria-hidden="true">▼</span>
       </div>
     </div>
   </header>
@@ -75,9 +87,9 @@
   <main class="dashboard-container">
 
     <!-- Demonstration Mode Disclaimer Banner -->
-    <div class="demo-notice-bar" style="background: rgba(239, 68, 68, 0.12); border: 1px dashed #f87171; border-radius: var(--radius-sm); padding: 0.6rem 1rem; font-size: 0.8rem; color: #fca5a5; display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+    <div class="demo-notice-bar">
       <span>⚠️ <strong data-i18n="banner_demo_warning">DEMONSTRATION FORECAST — NOT FOR AGRICULTURAL DECISIONS.</strong> <span data-i18n="banner_demo_subtext">Operates on synthetic benchmark data. Uncertainty intervals are provisional assumptions.</span></span>
-      <span style="font-size: 0.72rem; color: #e2e8f0; background:rgba(0,0,0,0.3); padding:2px 8px; border-radius:4px;" data-i18n="badge_demo_mode">SYNTHETIC BENCHMARK</span>
+      <span class="badge" style="background:#fee2e2; color:#991b1b; border:1px solid #fca5a5;" data-i18n="badge_demo_mode">SYNTHETIC BENCHMARK</span>
     </div>
 
     <!-- Alert / Agro-Met Banner -->
@@ -85,13 +97,13 @@
       <div class="alert-content">
         <span id="alert-icon" class="alert-icon">🌱</span>
         <div>
-          <div id="alert-headline" class="alert-title">Evaluating Local Monsoon Circulation...</div>
-          <div id="alert-desc" class="alert-desc">Connecting to IMD gridded telemetry and meteorological model...</div>
+          <div id="alert-headline" class="alert-title" data-i18n="alert_evaluating_headline">Evaluating Local Monsoon Circulation...</div>
+          <div id="alert-desc" class="alert-desc" data-i18n="alert_evaluating_desc">Connecting to IMD gridded telemetry and meteorological model...</div>
         </div>
       </div>
       <div style="display:flex; gap:0.5rem; align-items:center;">
-        <button id="voice-advisory-btn" class="voice-btn" title="Read Aloud in Selected Language">
-          <span>🔊</span> <span data-i18n="btn_listen_audio">Listen Audio Advisory</span>
+        <button id="voice-advisory-btn" class="voice-btn" data-i18n-attr="title:btn_listen_audio">
+          <span aria-hidden="true">🔊</span> <span data-i18n="btn_listen_audio">Listen Audio Advisory</span>
         </button>
       </div>
     </section>
@@ -103,12 +115,21 @@
       <div class="glass-card">
         <div class="card-header">
           <span class="card-title" data-i18n="onset_status_title">🌦️ Monsoon Onset Outlook</span>
-          <span id="onset-phase-badge" class="badge badge-active">Active</span>
+          <span id="onset-threshold-status-badge" class="badge badge-active">MET</span>
         </div>
         <div class="primary-stat" id="predicted-onset-date">Calculating...</div>
         <div class="secondary-stat">
-          <span data-i18n="normal_onset_label">IMD Climatological Normal</span>: <b id="normal-onset-date" style="color:#fff;">June 08</b> | 
-          <span data-i18n="confidence_label">Confidence</span>: <b id="onset-confidence" style="color:var(--accent-cyan);">88%</b>
+          <span data-i18n="normal_onset_label">IMD Climatological Normal</span>: <b id="normal-onset-date" style="color:var(--color-text);">June 08</b> | 
+          <span data-i18n="confidence_label">Onset Probability</span>: <b id="onset-confidence" style="color:var(--color-primary-dark);">88%</b>
+        </div>
+
+        <div style="font-size:0.78rem; margin:0.35rem 0; color:var(--color-text-secondary); display:flex; justify-content:space-between; align-items:center;">
+          <span><span data-i18n="onset_expected_window_label">Expected Onset Window</span>: <b id="onset-expected-window-val" style="color:var(--color-primary-dark);">7–14 days</b></span>
+          <span><span data-i18n="onset_threshold_status_label">Status</span>: <b id="onset-threshold-text" style="color:var(--color-success);">MET</b></span>
+        </div>
+
+        <div style="font-size:0.7rem; color:var(--color-text-secondary); background:var(--color-surface); padding:0.4rem 0.6rem; border-radius:6px; margin-bottom:0.6rem; border:1px solid var(--color-border);">
+          <strong data-i18n="onset_threshold_rule_label">Threshold Rule:</strong> <span id="onset-rule-used">IMD-referenced monsoon onset criteria adapted within the VarshaSetu hyperlocal forecasting framework: 2 days rain ≥2.5mm + 850hPa wind ≥7.7m/s + OLR ≤200W/m²</span>
         </div>
 
         <div class="criteria-list">
@@ -129,27 +150,51 @@
             <span class="criteria-status-tag tag-pass" id="tag-dir">✓ SATISFIED</span>
           </div>
         </div>
+
+        <div style="font-size:0.68rem; color:var(--color-text-secondary); margin-top:0.5rem; line-height:1.4; padding-top:0.4rem; border-top:1px solid var(--color-border); font-style:italic;" data-i18n="onset_methodology_note">
+          IMD's operational onset criteria are defined for declaration of southwest monsoon onset over Kerala and its advance. VarshaSetu uses these meteorological indicators as reference features within its hyperlocal probabilistic assessment; this dashboard does not represent an official IMD onset declaration.
+        </div>
       </div>
 
-      <!-- Card 2: Monsoon Break & Drought Risk -->
+      <!-- Card 2: Monsoon Active & Break Spell Assessment -->
       <div class="glass-card">
         <div class="card-header">
-          <span class="card-title" data-i18n="break_risk_title">☀️ Break Spell & Drought Risk</span>
+          <span class="card-title" data-i18n="break_risk_title">☀️ Active & Break Spell Assessment</span>
           <span id="break-risk-badge" class="badge badge-low">LOW RISK</span>
         </div>
-        <div class="primary-stat" id="break-probability-val">15.0%</div>
-        <div class="secondary-stat">
-          <span data-i18n="dry_days_label">Consecutive Dry Days Projected</span>: <b id="dry-days-val" style="color:#fff;">1 Day</b>
+
+        <!-- Active Monsoon Period Subsection -->
+        <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-left:3px solid #059669; padding:0.5rem 0.75rem; border-radius:6px; margin-bottom:0.5rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong style="font-size:0.75rem; color:#065f46;" data-i18n="active_monsoon_period_title">ACTIVE MONSOON PERIOD</strong>
+            <span id="active-prob-val" style="font-size:0.85rem; font-weight:800; color:#059669;">85.0%</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--color-text-secondary); margin-top:3px;">
+            <span><span data-i18n="active_duration_label">Expected Active Duration</span>: <b id="active-duration-val" style="color:var(--color-text);">7 Days</b></span>
+            <span><span data-i18n="active_window_label">Window</span>: <b id="active-window-val" style="color:var(--color-primary-dark);">Day 1–Day 7</b></span>
+          </div>
+        </div>
+
+        <!-- Monsoon Break / Dry Spell Subsection -->
+        <div style="background:#fef2f2; border:1px solid #fecdd3; border-left:3px solid #e11d48; padding:0.5rem 0.75rem; border-radius:6px; margin-bottom:0.5rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong style="font-size:0.75rem; color:#9f1239;" data-i18n="break_spell_period_title">MONSOON BREAK / DRY SPELL</strong>
+            <span id="break-probability-val" style="font-size:0.85rem; font-weight:800; color:#e11d48;">15.0%</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--color-text-secondary); margin-top:3px;">
+            <span><span data-i18n="break_duration_label">Expected Dry-Spell Duration</span>: <b id="dry-days-val" style="color:var(--color-text);">1 Day</b></span>
+            <span><span data-i18n="break_window_label">Window</span>: <b id="break-window-val" style="color:#d97706;">Day 8–Day 12</b></span>
+          </div>
         </div>
 
         <div class="criteria-list">
           <div class="criteria-item">
             <span class="criteria-label" data-i18n="anomaly_departure_label">Rainfall Anomaly Departure</span>
-            <span id="anomaly-val" style="font-size:0.75rem; color:var(--accent-cyan); font-weight:700;">+12.4% (Normal)</span>
+            <span id="anomaly-val" style="font-size:0.78rem; color:var(--color-primary-dark); font-weight:700;">+12.4% (Normal)</span>
           </div>
           <div class="criteria-item">
             <span class="criteria-label" data-i18n="heavy_rain_title">Heavy Rainfall Risk</span>
-            <span id="heavy-rain-val" style="font-size:0.75rem; color:#a7f3d0; font-weight:700;">GREEN (No Heavy Rain)</span>
+            <span id="heavy-rain-val" style="font-size:0.78rem; color:var(--color-success); font-weight:700;">GREEN (No Heavy Rain)</span>
           </div>
         </div>
       </div>
@@ -158,7 +203,7 @@
       <div class="glass-card">
         <div class="card-header">
           <span class="card-title" data-i18n="telemetry_title">📊 Catchment Telemetry</span>
-          <span class="badge" style="background:rgba(255,255,255,0.08); color:#cbd5e1;">IMD Standard Units</span>
+          <span class="badge" style="background:var(--color-surface); color:var(--color-text-secondary); border:1px solid var(--color-border);" data-i18n="telemetry_units_badge">IMD Standard Units</span>
         </div>
         <div class="metrics-pill-grid">
           <div class="metric-pill">
@@ -191,7 +236,7 @@
           <div>
             <span class="card-title" data-i18n="map_title">🗺️ Geospatial Risk Map (Approximate Demonstration Polygons)</span>
             <div style="font-size:0.7rem; color:var(--text-dim); margin-top:3px;" data-i18n="map_geometry_note">
-              * Polygons are approximate demonstration bounding-boxes, not official Survey of India administrative boundaries. Isochrones and radar points are illustrative simulations.
+              Demonstration boundary — not an official administrative boundary. Polygons are approximate demonstration bounding-boxes; isochrones and radar points are illustrative simulations.
             </div>
           </div>
           <div class="map-controls-inline">
@@ -202,7 +247,7 @@
               <span data-i18n="map_radar_toggle">Rainfall Radar</span>
             </button>
             <button id="toggle-table-fallback" class="map-filter-btn">
-              <span>📋 Location Table</span>
+              <span data-i18n="map_table_toggle">📋 Location Table</span>
             </button>
           </div>
         </div>
@@ -213,13 +258,13 @@
           <table style="width:100%; border-collapse:collapse; font-size:0.8rem; text-align:left;">
             <thead>
               <tr style="border-bottom:1px solid var(--border-color); color:var(--text-dim);">
-                <th style="padding:0.5rem;">Village/Block</th>
-                <th>District</th>
-                <th>State</th>
-                <th>Coordinates</th>
-                <th>Primary Soil</th>
-                <th>Normal Onset</th>
-                <th>Action</th>
+                <th style="padding:0.5rem;" data-i18n="table_col_village">Village/Block</th>
+                <th data-i18n="table_col_district">District</th>
+                <th data-i18n="table_col_state">State</th>
+                <th data-i18n="table_col_coords">Coordinates</th>
+                <th data-i18n="table_col_soil">Primary Soil</th>
+                <th data-i18n="table_col_onset">Normal Onset</th>
+                <th data-i18n="table_col_action">Action</th>
               </tr>
             </thead>
             <tbody id="location-table-body">
@@ -238,7 +283,7 @@
               * Uncertainty intervals are provisional heuristic assumptions based on qualitative S2S degradation, not empirically calibrated.
             </div>
           </div>
-          <span style="font-size:0.75rem; color:var(--text-dim);">Forecast Horizon</span>
+          <span style="font-size:0.75rem; color:var(--text-dim);" data-i18n="chart_horizon_label">Forecast Horizon</span>
         </div>
         <div style="flex:1; min-height:220px; position:relative; padding-top:0.5rem;">
           <canvas id="rainfall-chart"></canvas>
@@ -254,7 +299,7 @@
     <section>
       <div class="section-title-bar">
         <h2 data-i18n="crop_advisory_title">🌾 Hyperlocal Agricultural Advisories (Kharif Season)</h2>
-        <span style="font-size:0.85rem; color:var(--accent-cyan); font-weight:600;">ICAR-CRIDA Agronomic Guidelines</span>
+        <span style="font-size:0.85rem; color:var(--accent-cyan); font-weight:600;" data-i18n="crop_advisory_subtitle">ICAR-CRIDA Agronomic Guidelines</span>
       </div>
 
       <div id="crops-grid" class="crops-grid" style="margin-top: 1rem;">
@@ -265,83 +310,129 @@
     <!-- Climate Drivers & Large-Scale Teleconnections Card -->
     <section class="glass-card" style="margin-top: 1rem;">
       <div class="card-header">
-        <span class="card-title">🌐 Large-Scale Climate Drivers & Teleconnections (NCMRWF ERPS)</span>
-        <span class="badge" style="background:rgba(59,130,246,0.15); color:#60a5fa;">Global Tropics Telemetry</span>
+        <span class="card-title" data-i18n="tele_section_title">🌐 Large-Scale Climate Drivers & Teleconnections (NCMRWF ERPS)</span>
+        <span class="badge badge-info" data-i18n="tele_section_badge">Global Tropics Telemetry</span>
       </div>
       <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:1rem; margin-top:0.5rem;">
-        <div style="background:rgba(10,15,29,0.5); padding:0.9rem; border-radius:10px; border:1px solid rgba(255,255,255,0.05);">
+        <div style="background:var(--color-surface); padding:1rem; border-radius:var(--radius-sm); border:1px solid var(--color-border);">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; font-weight:700;">ENSO (Niño 3.4 Region)</div>
-            <span id="tele-enso-status" class="badge" style="font-size:0.65rem; background:rgba(255,255,255,0.08); color:#94a3b8;">BENCHMARK</span>
+            <div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase; font-weight:700;" data-i18n="tele_enso_title">ENSO (Niño 3.4 Region)</div>
+            <span id="tele-enso-status" class="badge" style="font-size:0.65rem; background:var(--color-surface-muted); color:var(--color-text-secondary); border:1px solid var(--color-border);" data-i18n="badge_benchmark">BENCHMARK</span>
           </div>
-          <div style="font-size:1.3rem; font-weight:800; color:#fff; margin-top:0.2rem;" id="tele-enso-val">+0.25 °C (Neutral)</div>
-          <small style="color:var(--text-muted); font-size:0.75rem;" id="tele-enso-desc">Pacific SST anomaly within neutral threshold</small>
+          <div style="font-size:1.3rem; font-weight:800; color:var(--color-text); margin-top:0.25rem;" id="tele-enso-val">+0.25 °C (Neutral)</div>
+          <small style="color:var(--color-text-secondary); font-size:0.75rem;" id="tele-enso-desc" data-i18n="tele_enso_desc_neutral">Pacific SST anomaly within neutral threshold</small>
         </div>
-        <div style="background:rgba(10,15,29,0.5); padding:0.9rem; border-radius:10px; border:1px solid rgba(255,255,255,0.05);">
+        <div style="background:var(--color-surface); padding:1rem; border-radius:var(--radius-sm); border:1px solid var(--color-border);">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; font-weight:700;">Indian Ocean Dipole (BOM DMI)</div>
-            <span id="tele-iod-status" class="badge" style="font-size:0.65rem; background:rgba(255,255,255,0.08); color:#94a3b8;">CONFIGURED BENCHMARK</span>
+            <div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase; font-weight:700;" data-i18n="tele_iod_title">Indian Ocean Dipole (BOM DMI)</div>
+            <span id="tele-iod-status" class="badge" style="font-size:0.65rem; background:var(--color-surface-muted); color:var(--color-text-secondary); border:1px solid var(--color-border);" data-i18n="badge_benchmark">CONFIGURED BENCHMARK</span>
           </div>
-          <div style="font-size:1.3rem; font-weight:800; color:#38bdf8; margin-top:0.2rem;" id="tele-iod-val">+0.15 °C (Neutral)</div>
-          <small style="color:var(--text-muted); font-size:0.75rem;" id="tele-iod-desc">Normal equatorial thermal gradient</small>
+          <div style="font-size:1.3rem; font-weight:800; color:var(--color-primary-dark); margin-top:0.25rem;" id="tele-iod-val">+0.15 °C (Neutral)</div>
+          <small style="color:var(--color-text-secondary); font-size:0.75rem;" id="tele-iod-desc" data-i18n="tele_iod_desc_neutral">Normal equatorial thermal gradient</small>
         </div>
-        <div style="background:rgba(10,15,29,0.5); padding:0.9rem; border-radius:10px; border:1px solid rgba(255,255,255,0.05);">
+        <div style="background:var(--color-surface); padding:1rem; border-radius:var(--radius-sm); border:1px solid var(--color-border);">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="font-size:0.75rem; color:var(--text-dim); text-transform:uppercase; font-weight:700;">MJO Convective Wave (RMM)</div>
-            <span id="tele-mjo-status" class="badge" style="font-size:0.65rem; background:rgba(255,255,255,0.08); color:#94a3b8;">CONFIGURED BENCHMARK</span>
+            <div style="font-size:0.75rem; color:var(--color-text-secondary); text-transform:uppercase; font-weight:700;" data-i18n="tele_mjo_title">MJO Convective Wave (RMM)</div>
+            <span id="tele-mjo-status" class="badge" style="font-size:0.65rem; background:var(--color-surface-muted); color:var(--color-text-secondary); border:1px solid var(--color-border);" data-i18n="badge_benchmark">CONFIGURED BENCHMARK</span>
           </div>
-          <div style="font-size:1.3rem; font-weight:800; color:#10b981; margin-top:0.2rem;" id="tele-mjo-val">Phase 3 (Amp: 1.2)</div>
-          <small style="color:var(--text-muted); font-size:0.75rem;" id="tele-mjo-desc">Convectively active over Indian Ocean</small>
+          <div style="font-size:1.3rem; font-weight:800; color:var(--color-success); margin-top:0.25rem;" id="tele-mjo-val">Phase 3 (Amp: 1.2)</div>
+          <small style="color:var(--color-text-secondary); font-size:0.75rem;" id="tele-mjo-desc" data-i18n="tele_mjo_desc_active">Convectively active over Indian Ocean</small>
         </div>
       </div>
-      <div style="font-size:0.72rem; color:var(--text-muted); margin-top:0.65rem; padding-top:0.4rem; border-top:1px solid rgba(255,255,255,0.04);" data-i18n="climate_drivers_note">
+      <div style="font-size:0.72rem; color:var(--color-text-secondary); margin-top:0.65rem; padding-top:0.4rem; border-top:1px solid var(--color-border);" data-i18n="climate_drivers_note">
         * Climate indices marked [CONFIGURED BENCHMARK] are demonstration parameters, not live telemetry. NOAA CPC ONI connector actively retrieves verified real NOAA SST indices when available.
       </div>
     </section>
 
-    <!-- Optional Messaging Gateway Sandbox (SMS / WhatsApp) -->
+    <!-- Rural Messaging Gateway Sandbox (SMS / WhatsApp) -->
     <section class="glass-card" style="margin-top: 1rem;">
       <div class="card-header">
-        <span class="card-title">📱 Rural Messaging Gateway Sandbox (Farmer SMS & WhatsApp Dispatches)</span>
-        <span class="badge" style="background:rgba(16,185,129,0.15); color:#34d399;">Working Prototype Adapter</span>
+        <span class="card-title" data-i18n="notify_section_title">📱 Rural Messaging Gateway Sandbox (Farmer SMS & WhatsApp Dispatches)</span>
+        <span class="badge badge-active" data-i18n="notify_badge">WORKING PROTOTYPE — NO REAL TELECOM DELIVERY</span>
       </div>
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-top:0.5rem;">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-top:0.5rem;" class="responsive-two-col">
         <div>
-          <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem;">
+          <p style="font-size:0.8rem; color:var(--color-text-secondary); margin-bottom:0.75rem;" data-i18n="notify_desc">
             Dispatches localized agro-meteorological bulletins directly to farmers' mobile devices in their chosen regional language.
           </p>
           <div style="display:flex; flex-direction:column; gap:0.65rem;">
+            <!-- Recipient Type Toggle: Farmer vs Agricultural Extension Officer -->
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <label for="notify-recipient-type" style="font-size:0.75rem; color:var(--color-text-secondary); min-width:90px;" data-i18n="recipient_type_label">Recipient Type:</label>
+              <select id="notify-recipient-type" class="control-select" style="flex:1;">
+                <option value="farmer" data-i18n="recipient_farmer">Farmer</option>
+                <option value="officer" data-i18n="recipient_officer">Agricultural Extension Officer</option>
+              </select>
+            </div>
+
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <label for="notify-crop-select" style="font-size:0.75rem; color:var(--color-text-secondary); min-width:90px;" data-i18n="nav_crop_select">Focus Crop:</label>
+              <select id="notify-crop-select" class="control-select" style="flex:1;">
+                <option value="paddy">Paddy / Rice</option>
+                <option value="cotton">Cotton</option>
+                <option value="soybean">Soybean</option>
+                <option value="groundnut">Groundnut</option>
+                <option value="maize">Maize / Corn</option>
+                <option value="pulses">Redgram / Pulses</option>
+              </select>
+            </div>
+
             <div style="display:flex; gap:0.5rem;">
-              <input type="text" id="notify-phone" class="control-select" style="flex:1;" placeholder="Farmer Phone: +91 98765 43210" value="+91 98765 43210"/>
+              <input type="text" id="notify-phone" class="control-select" style="flex:1;" data-i18n-attr="placeholder:notify_phone_placeholder" value="+91 98765 43210"/>
               <select id="notify-channel" class="control-select" style="width:120px;">
                 <option value="sms">SMS</option>
                 <option value="whatsapp">WhatsApp</option>
               </select>
             </div>
-            <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.75rem; color:var(--text-muted);">
+
+            <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.75rem; color:var(--color-text-secondary);">
               <input type="checkbox" id="notify-consent" checked />
-              <label for="notify-consent">Farmer opted-in for seasonal Kharif agro-met alerts (ICAR-NCMRWF)</label>
+              <label for="notify-consent" data-i18n="notify_consent_label">Recipient opted-in for seasonal Kharif agro-met alerts (ICAR-NCMRWF)</label>
             </div>
             <button id="dispatch-notify-btn" class="voice-btn" style="align-self:flex-start; margin-top:0.25rem;">
-              <span>📤</span> Dispatch Localized Alert
+              <span aria-hidden="true">📤</span> <span data-i18n="notify_btn_dispatch">Dispatch Localized Alert</span>
             </button>
           </div>
         </div>
 
         <!-- Simulation Delivery Log Box -->
-        <div id="notify-log-card" style="background:rgba(10,15,29,0.6); border:1px dashed rgba(59,130,246,0.3); border-radius:10px; padding:0.9rem; font-size:0.78rem; color:#cbd5e1; display:flex; flex-direction:column; justify-content:space-between;">
+        <div id="notify-log-card" style="background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-sm); padding:1rem; font-size:0.8rem; color:var(--color-text); display:flex; flex-direction:column; justify-content:space-between;">
           <div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
-              <strong style="color:var(--accent-cyan);">Simulated Delivery Console</strong>
-              <span id="notify-status-pill" style="color:#10b981; font-weight:700;">STANDBY</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+              <strong style="color:var(--color-primary-dark);" data-i18n="notify_console_title">Simulated Delivery Console</strong>
+              <span id="notify-status-pill" style="color:var(--color-success); font-weight:700;" data-i18n="notify_status_standby">STANDBY</span>
             </div>
-            <div id="notify-message-preview" style="font-family:monospace; background:rgba(0,0,0,0.3); padding:0.5rem; border-radius:6px; font-size:0.75rem; color:#a7f3d0; max-height:80px; overflow-y:auto;">
+            <div id="notify-message-preview" style="font-family:inherit; background:#ffffff; border:1px solid var(--color-border); padding:0.65rem; border-radius:6px; font-size:0.78rem; color:var(--color-text); max-height:120px; overflow-y:auto; white-space:pre-line;" data-i18n="notify_prompt_click">
               Click 'Dispatch Localized Alert' to simulate carrier transmission...
             </div>
           </div>
-          <div style="font-size:0.68rem; color:var(--text-dim); margin-top:0.4rem;">
-            Notice: Sandbox demonstration mode. Dispatches are verified and logged into SQLite audit records without incurring external SMS carrier fees.
+          <div style="font-size:0.7rem; color:var(--color-text-muted); margin-top:0.5rem;" data-i18n="notify_notice_disclaimer">
+            Notice: Sandbox demonstration mode — WORKING PROTOTYPE (NO REAL TELECOM DELIVERY). Simulated dispatches are validated and recorded in local SQLite audit logs without carrier transmission.
           </div>
+        </div>
+      </div>
+
+      <!-- Live Simulated Transmission Audit History Table -->
+      <div style="margin-top:1rem; border-top:1px solid var(--color-border); padding-top:0.75rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+          <strong style="font-size:0.8rem; color:var(--color-text);" data-i18n="notify_history_title">Simulated Transmission Audit Log</strong>
+          <span class="badge badge-info" data-i18n="notify_simulated_delivery_tag">SIMULATED DELIVERY</span>
+        </div>
+        <div style="max-height:160px; overflow-y:auto; overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse; font-size:0.75rem; text-align:left;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--color-border); color:var(--color-text-secondary);">
+                <th style="padding:0.4rem 0.5rem;" data-i18n="notify_col_time">Time (IST)</th>
+                <th data-i18n="notify_col_recipient">Recipient Type</th>
+                <th data-i18n="notify_col_target">Target</th>
+                <th data-i18n="notify_col_channel">Channel</th>
+                <th data-i18n="notify_col_status">Delivery Status</th>
+              </tr>
+            </thead>
+            <tbody id="notify-history-tbody">
+              <!-- Populated dynamically via JS -->
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -349,14 +440,27 @@
     <!-- Data Sources & Model Transparency Panel -->
     <section class="glass-card" style="margin-top: 1rem;">
       <div class="card-header">
-        <span class="card-title">📖 Data Provenance, Model Validation & Scientific Methodology</span>
+        <span class="card-title" data-i18n="model_transparency_title">📖 Data Provenance, Model Validation & Scientific Methodology</span>
         <button id="refresh-model-info-btn" class="voice-btn" style="font-size:0.75rem; padding:0.3rem 0.7rem;">
-          <span>🔄</span> Refresh Validation
+          <span aria-hidden="true">🔄</span> <span data-i18n="btn_refresh_model">Refresh Validation</span>
         </button>
       </div>
       <div id="model-transparency-content" style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
-        <p><strong>Department & Architecture:</strong> National Centre for Medium Range Weather Forecasting (NCMRWF) and IMD operational criteria. Hybrid Physics-Informed Random Forest Classifier coupled with tropical climate drivers (ENSO Niño 3.4, BOM IOD, CPC MJO).</p>
-        <p><strong>Evaluation Status:</strong> Evaluated using chronological train/test partitioning (Train: 2023–2024, Test: 2025) to prevent temporal data leakage. Demonstrated positive Brier Skill Score (+0.158) over climatological baseline.</p>
+        <p><strong data-i18n="model_arch_title">Department & Architecture:</strong> <span data-i18n="model_arch_desc">National Centre for Medium Range Weather Forecasting (NCMRWF) and IMD operational criteria. Hybrid Physics-Informed Random Forest Classifier coupled with tropical climate drivers (ENSO Niño 3.4, BOM IOD, CPC MJO).</span></p>
+        <p><strong data-i18n="model_eval_title">Evaluation Status:</strong> <span data-i18n="model_eval_desc">Evaluated using chronological train/test partitioning (Train: 2023–2024, Test: 2025) to prevent temporal data leakage. Demonstrated positive Brier Skill Score (+0.158) over climatological baseline.</span></p>
+
+        <!-- System Data Provenance Matrix -->
+        <div class="provenance-matrix" style="margin-top:0.85rem; padding:0.75rem 1rem; background:var(--color-surface); border:1px solid var(--color-border); border-radius:var(--radius-sm); font-size:0.78rem;">
+          <strong style="color:var(--color-primary-dark); display:block; margin-bottom:0.35rem;" data-i18n="provenance_matrix_title">📊 System Data Provenance & Operational Classification</strong>
+          <ul style="padding-left:1.2rem; margin:0; line-height:1.6; color:var(--color-text-secondary);">
+            <li><strong style="color:var(--color-text);">Real External Telemetry:</strong> NOAA CPC ONI (real monthly Oceanic Niño Index SST anomalies) & NASA POWER API agro-climatology (precipitation, temperature, humidity, surface wind, insolation).</li>
+            <li><strong style="color:var(--color-text);">Historical Real Catchment Data:</strong> Multi-year observed agricultural weather datasets (Tenali, AP 2023–2025) validated using chronological train/test partitioning without temporal leakage.</li>
+            <li><strong style="color:var(--color-text);">Climatological Benchmark Fallback:</strong> 850 hPa zonal westerly wind and satellite OLR utilize climatological benchmark distributions when live NCMRWF ERPS upper-air operational feeds are unavailable.</li>
+            <li><strong style="color:var(--color-text);">Model-Derived Probabilities:</strong> Hyperlocal onset probability, active spell duration, break spell risk & duration, and heavy-rainfall probability computed via VarshaSetu physics-informed Random Forest classifier.</li>
+            <li><strong style="color:var(--color-text);">Synthetic Demonstration Datasets:</strong> Pre-configured scenario profiles across representative mandals/blocks (Dharmasagar, Gangavathi, etc.) for interactive prototype simulation.</li>
+          </ul>
+        </div>
+
         <div id="model-metrics-pills" style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:0.75rem;">
           <!-- Populated by JS -->
         </div>
@@ -367,17 +471,18 @@
 
   <!-- App Footer -->
   <footer class="app-footer">
-    <div data-i18n="footer_text">Smart India Hackathon 2026 | Problem Statement SIH26086 | Ministry of Earth Sciences (MoES)</div>
+    <div data-i18n="footer_text">VarshaSetu | Smart India Hackathon 2026 | Problem Statement SIH26086 | Ministry of Earth Sciences (MoES)</div>
     <div class="footer-links">
-      <a href="/api/health" target="_blank">Flask API Health</a>
-      <a href="/api/model-info" target="_blank">Model Card JSON</a>
-      <a href="/api/data-sources" target="_blank">Data Sources</a>
-      <a href="https://mausam.imd.gov.in/" target="_blank" rel="noopener">IMD Mausam Reference</a>
+      <a href="/api/health" target="_blank" data-i18n="footer_link_health">Flask API Health</a>
+      <a href="/api/model-info" target="_blank" data-i18n="footer_link_model_card">Model Card JSON</a>
+      <a href="/api/data-sources" target="_blank" data-i18n="footer_link_data_sources">Data Sources</a>
+      <a href="https://mausam.imd.gov.in/" target="_blank" rel="noopener" data-i18n="footer_link_imd">IMD Mausam Reference</a>
     </div>
   </footer>
 
-  <!-- Scripts -->
+  <!-- Scripts: i18n, Map, App -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="js/i18n.js"></script>
   <script src="js/map.js"></script>
   <script src="js/app.js"></script>
 </body>

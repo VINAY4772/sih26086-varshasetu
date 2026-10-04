@@ -5,7 +5,7 @@ import os
 from .api.routes import router
 
 app = FastAPI(
-    title="SIH26086: Hyperlocal Monsoon Onset & Break Prediction System",
+    title="VarshaSetu: Hyperlocal Monsoon Onset & Break Prediction System",
     description="Operational API for MoES Block & Village scale monsoon onset, break spell prediction, and agricultural advisories",
     version="1.0.0"
 )

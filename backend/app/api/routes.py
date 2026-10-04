@@ -21,7 +21,9 @@ router = APIRouter(prefix="/api/v1")
 def health_check():
     return {
         "status": "healthy",
-        "service": "SIH26086 Hyperlocal Monsoon Onset & Break Prediction System",
+        "service": "VarshaSetu Hyperlocal Monsoon Onset & Break Prediction System (SIH26086)",
+        "product_name": "VarshaSetu",
+        "tagline": "Bridging Climate Intelligence with Every Farmer",
         "version": "1.0.0",
         "timestamp": datetime.datetime.now().isoformat()
     }

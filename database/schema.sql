@@ -95,6 +95,7 @@ CREATE TABLE IF NOT EXISTS crop_advisories (
 
 CREATE TABLE IF NOT EXISTS notification_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    recipient_type TEXT DEFAULT 'farmer',
     recipient_mask TEXT NOT NULL,
     channel TEXT NOT NULL,
     message_body TEXT NOT NULL,
